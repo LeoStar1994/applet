@@ -1,20 +1,27 @@
+<!--
+ * @Description: 小程序管理 / 授权管理.
+ * @Author: Leo
+ * @Date: 2020-12-17 17:39:10
+ * @LastEditTime: 2020-12-17 19:24:10
+ * @LastEditors: Leo
+-->
 <template>
-  <div class="new-page"
+  <div class="content-contain"
        :style="`min-height: ${pageMinHeight}px`">
-    <h1>{{$t('content')}}</h1>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
 export default {
-  name: "Demo",
+  name: "Authorization",
   i18n: require("./i18n"),
   data() {
     return {};
   },
   computed: {
     ...mapState("setting", ["pageMinHeight"]),
+    // page header desc
     desc() {
       return this.$t("description");
     },
@@ -23,5 +30,4 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "index";
 </style>
