@@ -37,12 +37,12 @@ const options = {
             {
               path: "authorization",
               name: "授权管理",
-              component: () => import("@/pages/demo"),
+              component: () => import("@/pages/applet/authorization"),
             },
             {
               path: "version",
               name: "版本控制",
-              component: () => import("@/pages/demo"),
+              component: () => import("@/pages/applet/version"),
             },
           ],
         },
@@ -71,7 +71,7 @@ const options = {
             }
           ]
         }, */
-        {
+        /* {
           name: "验权页面",
           path: "auth/demo",
           meta: {
@@ -82,7 +82,7 @@ const options = {
             },
             component: () => import("@/pages/demo"),
           },
-        },
+        }, */
       ],
     },
   ],
