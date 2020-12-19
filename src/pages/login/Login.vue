@@ -2,7 +2,7 @@
  * @Description: login登录页面.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-18 17:18:26
+ * @LastEditTime: 2020-12-19 16:32:07
  * @LastEditors: Leo
 -->
 
@@ -32,7 +32,6 @@
                    :message="error"
                    showIcon
                    style="margin-bottom: 24px;" />
-
           <a-form @submit="onSubmit"
                   :form="form">
             <a-form-item>
@@ -41,7 +40,7 @@
                        size="default"
                        :maxLength="20"
                        placeholder="请输入您的账号"
-                       v-decorator="['name', {rules: [{ required: true, message: '请输入您的账号', whitespace: true}]}]">
+                       v-decorator="['name', {rules: [{ required: true, whitespace: true, validator: handleCheckAccount}]}]">
                 <a-icon slot="prefix"
                         type="user" />
               </a-input>
@@ -63,6 +62,12 @@
         <!-- 手机号登录 -->
         <a-tab-pane tab="手机号登录"
                     key="phoneLogin">
+          <a-alert type="error"
+                   :closable="true"
+                   v-show="errorByPhone"
+                   :message="errorByPhone"
+                   showIcon
+                   style="margin-bottom: 24px;" />
           <a-form @submit="onSubmitByPhone"
                   :form="form1">
             <!-- 手机号 -->
@@ -132,7 +137,7 @@
 
 <script>
 import CommonLayout from "@/layouts/CommonLayout";
-import { login, getRoutesConfig } from "@/services/user";
+import { login, loginByPhone, getRoutesConfig } from "@/services/user";
 import { setAuthorization } from "@/utils/request";
 import { loadRoutes } from "@/utils/routerUtil";
 import { mapMutations } from "vuex";
@@ -144,6 +149,7 @@ export default {
     return {
       logging: false,
       error: "",
+      errorByPhone: "",
       form: this.$form.createForm(this),
       form1: this.$form.createForm(this),
       currentTabKey: "commonLogin",
@@ -164,6 +170,17 @@ export default {
       }
     },
 
+    // 账号必须为邮箱登录
+    handleCheckAccount(rule, value, callback) {
+      const emailExp = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+      if (this.$isEmpty(value)) {
+        callback("请输入您的账号");
+      } else if (!emailExp.test(value)) {
+        callback("账号必须输入邮箱！");
+      }
+      callback();
+    },
+
     // 点击登录按钮
     loginSubmit(e) {
       if (this.currentTabKey === "commonLogin") {
@@ -181,7 +198,6 @@ export default {
           this.logging = true;
           const name = this.form.getFieldValue("name");
           const password = this.form.getFieldValue("password");
-          // const allValues = this.form.getFieldsValue();
           login(name, password).then(this.afterLogin);
         }
       });
@@ -209,7 +225,11 @@ export default {
           this.$message.success(loginRes.message, 3);
         });
       } else {
-        this.error = loginRes.message;
+        if (this.currentTabKey === "common") {
+          this.error = loginRes.message;
+        } else {
+          this.errorByPhone = loginRes.message;
+        }
       }
     },
 
@@ -219,10 +239,8 @@ export default {
       this.form1.validateFields((err) => {
         if (!err) {
           this.logging = true;
-          // const name = this.form1.getFieldValue("name");
-          // const password = this.form1.getFieldValue("password");
-          // const allValues = this.form1.getFieldsValue();
-          // login(name, password).then(this.afterLogin);
+          const allValues = this.form1.getFieldsValue();
+          loginByPhone(allValues).then(this.afterLogin);
         }
       });
     },

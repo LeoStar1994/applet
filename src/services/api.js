@@ -4,5 +4,6 @@
 const BASE_URL = process.env.VUE_APP_API_BASE_URL;
 module.exports = {
   LOGIN: `${BASE_URL}/login`,
+  LOGINBYPHONE: `${BASE_URL}/loginByPhone`,
   ROUTES: `${BASE_URL}/routes`,
 };

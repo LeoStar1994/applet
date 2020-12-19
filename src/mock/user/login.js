@@ -11,9 +11,9 @@ Mock.mock(`${process.env.VUE_APP_API_BASE_URL}/login`, "post", ({ body }) => {
   let result = {};
   const { name, password } = JSON.parse(body);
 
-  if (name !== "admin" || password !== "888888") {
+  if (name !== "admin@123.com" || password !== "888888") {
     result.code = -1;
-    result.message = "账户名或密码错误（admin/888888）";
+    result.message = "账户名或密码错误（admin@123.com/888888）";
   } else {
     result.code = 0;
     result.message = Mock.mock("@TIMEFIX").CN + "，欢迎回来";

@@ -2,82 +2,112 @@
  * @Description: 小程序管理 / 版本控制.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-17 19:57:27
+ * @LastEditTime: 2020-12-19 19:26:46
  * @LastEditors: Leo
 -->
 <template>
-  <!-- <div class="content-contain"
-       :style="`min-height: ${pageMinHeight}px`">
-  </div> -->
-  <a-card>
-    <div :class="advanced ? 'search' : null">
-      <a-form layout="horizontal">
-        <div :class="advanced ? null: 'fold'">
+  <div>
+    <a-card class="content-contain"
+            :style="`min-height: ${pageMinHeight}px`">
+      <!-- search -->
+      <div :class="advanced ? 'search' : null">
+        <a-form-model ref="ruleForm"
+                      :model="form"
+                      :rules="rules"
+                      :label-col="labelCol"
+                      :wrapper-col="wrapperCol">
           <a-row>
+            <!-- 小程序名称 -->
             <a-col :md="8"
                    :sm="24">
-              <a-form-item label="小程序名称"
-                           :labelCol="{span: 5}"
-                           :wrapperCol="{span: 18, offset: 1}">
-                <a-select placeholder="请选择">
-                  <a-select-option value="1">小程序1</a-select-option>
-                  <a-select-option value="2">小程序2</a-select-option>
+              <a-form-model-item label="小程序名称"
+                                 prop="appletName">
+                <a-select v-model="form.appletName"
+                          placeholder="请选择">
+                  <a-select-option v-for="item in appletNameList"
+                                   :key="item.id"
+                                   :value="item.id">
+                    {{item.label}}
+                  </a-select-option>
                 </a-select>
-              </a-form-item>
+              </a-form-model-item>
             </a-col>
+            <!-- 小程序名称 -->
             <a-col :md="8"
                    :sm="24">
-              <a-form-item label="关联用户"
-                           :labelCol="{span: 5}"
-                           :wrapperCol="{span: 18, offset: 1}">
-                <a-select placeholder="请选择">
-                  <a-select-option value="1">用户1</a-select-option>
-                  <a-select-option value="2">用户2</a-select-option>
+              <a-form-model-item label="关联用户"
+                                 prop="account">
+                <a-select v-model="form.account"
+                          placeholder="请选择">
+                  <a-select-option v-for="item in accountList"
+                                   :key="item.id"
+                                   :value="item.id">
+                    {{item.label}}
+                  </a-select-option>
                 </a-select>
-              </a-form-item>
+              </a-form-model-item>
             </a-col>
             <span style="float: right; margin-top: 3px;">
               <a-button type="primary"
                         @click="searchTableData">查询</a-button>
               <a-button style="margin-left: 8px"
                         @click="reset">重置</a-button>
-              <!-- <a @click="toggleAdvanced"
+              <a @click="toggleAdvanced"
                  style="margin-left: 8px">
                 {{advanced ? '收起' : '展开'}}
                 <a-icon :type="advanced ? 'up' : 'down'" />
-              </a> -->
+              </a>
             </span>
           </a-row>
-        </div>
-      </a-form>
-    </div>
-    <div>
-
+        </a-form-model>
+      </div>
       <!-- table -->
       <standard-table :columns="columns"
                       :dataSource="dataSource">
-        <div slot="description"
-             slot-scope="{text, record, index}">
-          {{text}}{{record}}{{index}}
+        <div slot="auditResult"
+             slot-scope="{text}">
+          <span :class="[text === 1 ? 'text-red': '', text === 2 ? 'text-orange': '', text === 3 ? 'text-blue': '']">{{auditResultMapText[text]}}</span>
         </div>
         <div slot="action"
              slot-scope="{text, record}">
-          <a style="margin-right: 8px">
-            <a-icon type="plus" />上传小程序
+          <a style="margin-right:12px;"
+             @click="uploadApplet">
+            <!-- <a-icon type="plus" /> -->
+            上传小程序
           </a>
-          <a style="margin-right: 8px">
-            <a-icon type="edit" />通知发布
-          </a>
-          <a @click="deleteRecord(record.key)">
-            <a-icon type="delete" />返回上一个版本
-          </a>
+          <a style="margin-right: 12px"
+             @click="noticeIssue(text)">通知发布</a>
+          <a @click="backLastVersion(record)"
+             class="text-orange">返回上一个版本</a>
         </div>
-        <template slot="statusTitle">
-          <a-icon type="info-circle" />
-        </template>
       </standard-table>
-    </div>
-  </a-card>
+    </a-card>
+    <a-modal title="上传小程序"
+             width="400px"
+             :visible="visible"
+             :confirm-loading="confirmLoading"
+             centered
+             destroyOnClose
+             @ok="handleOk"
+             @cancel="handleCancel">
+      <div class="clearfix d-flex">
+        <a-upload :file-list="fileList"
+                  :remove="handleRemove"
+                  :before-upload="beforeUpload">
+          <a-button>
+            <a-icon type="upload" /> Select File
+          </a-button>
+        </a-upload>
+        <a-button type="primary"
+                  :disabled="fileList.length === 0"
+                  :loading="uploading"
+                  class="ml-12"
+                  @click="handleUpload">
+          {{ uploading ? '上传服务器' : '请先上传文件' }}
+        </a-button>
+      </div>
+    </a-modal>
+  </div>
 </template>
 
 <script>
@@ -88,34 +118,30 @@ const columns = [
     title: "小程序名称",
     dataIndex: "appletName",
   },
-  // {
-  //   title: "描述",
-  //   dataIndex: "description",
-  //   scopedSlots: { customRender: "description" },
-  // },
   {
     title: "关联用户",
-    dataIndex: "callNo1",
+    dataIndex: "account",
   },
   {
     title: "管理员账号",
-    dataIndex: "callNo2",
+    dataIndex: "adminAccount",
   },
   {
     title: "当前版本",
-    dataIndex: "callNo3",
+    dataIndex: "currentVersion",
   },
   {
     title: "最新版本",
-    dataIndex: "callNo4",
+    dataIndex: "newestVersion",
   },
   {
     title: "审核结果",
-    dataIndex: "callNo5",
+    dataIndex: "auditResult",
+    scopedSlots: { customRender: "auditResult" },
   },
   {
     title: "失败原因",
-    dataIndex: "callNo6",
+    dataIndex: "failReason",
   },
   {
     title: "操作",
@@ -123,18 +149,38 @@ const columns = [
   },
 ];
 
-const dataSource = [];
-
-for (let i = 0; i < 100; i++) {
-  dataSource.push({
-    key: i,
-    no: "NO " + i,
-    description: "这是一段描述",
-    callNo: Math.floor(Math.random() * 1000),
-    status: Math.floor(Math.random() * 10) % 4,
-    updatedAt: "2018-07-26",
-  });
-}
+const dataSource = [
+  {
+    appletName: "智慧冰球1",
+    account: "中国冰球协会",
+    adminAccount: "admin1",
+    currentVersion: "1.5",
+    newestVersion: "1.6",
+    auditResult: 1,
+    failReason: "未提供相应证明",
+    id: 1,
+  },
+  {
+    appletName: "智慧冰球2",
+    account: "中国冰球协会",
+    adminAccount: "admin2",
+    currentVersion: "1.5",
+    newestVersion: "1.6",
+    auditResult: 2,
+    failReason: "未提供相应证明",
+    id: 2,
+  },
+  {
+    appletName: "智慧冰球3",
+    account: "中国冰球协会",
+    adminAccount: "admin3",
+    currentVersion: "1.5",
+    newestVersion: "1.6",
+    auditResult: 3,
+    failReason: "未提供相应证明",
+    id: 3,
+  },
+];
 
 export default {
   name: "Version",
@@ -142,10 +188,39 @@ export default {
   i18n: require("./i18n"),
   data() {
     return {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 14, offset: 1 },
+      form: {
+        appletName: undefined,
+        account: undefined,
+      },
+      // 搜索项校验规则
+      rules: {
+        appletName: [],
+        account: [],
+      },
+      appletNameList: [
+        { label: "小程序1", id: 1 },
+        { label: "小程序2", id: 2 },
+      ],
+      accountList: [
+        { label: "用户1", id: 1 },
+        { label: "用户2", id: 2 },
+      ],
+      auditResultMapText: {
+        1: "审核中",
+        2: "审核失败",
+        3: "审核通过",
+      },
       advanced: true,
       columns: columns,
       dataSource: dataSource,
-      selectedRows: [],
+      // modal data
+      visible: false,
+      confirmLoading: false,
+      // upload data
+      fileList: [],
+      uploading: false,
     };
   },
   computed: {
@@ -155,22 +230,61 @@ export default {
       return this.$t("description");
     },
   },
-
-  authorize: {
-    deleteRecord: "delete",
-  },
   methods: {
-    deleteRecord(key) {
-      this.dataSource = this.dataSource.filter((item) => item.key !== key);
-      this.selectedRows = this.selectedRows.filter((item) => item.key !== key);
-    },
+    // 切换搜索框收起展开
     toggleAdvanced() {
       this.advanced = !this.advanced;
     },
+    // 上传小程序
+    uploadApplet() {
+      this.visible = true;
+    },
+    // 通知发布
+    noticeIssue() {},
+    // 返回上一个版本
+    backLastVersion() {},
     // 列表查询
-    searchTableData() {},
+    searchTableData() {
+      // const data = { ...this.form };
+    },
     // 重置
-    reset() {},
+    reset() {
+      this.$refs.ruleForm.resetFields();
+    },
+    // modal
+    handleOk() {
+      this.confirmLoading = true;
+      setTimeout(() => {
+        this.visible = false;
+        this.confirmLoading = false;
+      }, 2000);
+    },
+    handleCancel() {
+      console.log("Clicked cancel button");
+      this.visible = false;
+    },
+
+    // upload
+    handleRemove(file) {
+      const index = this.fileList.indexOf(file);
+      const newFileList = this.fileList.slice();
+      newFileList.splice(index, 1);
+      this.fileList = newFileList;
+    },
+    beforeUpload(file) {
+      this.fileList = [...this.fileList, file];
+      return false;
+    },
+    handleUpload() {
+      const { fileList } = this;
+      const formData = new FormData();
+      fileList.forEach((file) => {
+        formData.append("files[]", file);
+      });
+      this.uploading = true;
+
+      // You can use any AJAX library you like
+    },
   },
 };
 </script>
