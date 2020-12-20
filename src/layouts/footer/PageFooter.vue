@@ -10,13 +10,13 @@
 <script>
 export default {
   name: "PageFooter",
-  props: ["copyright"],
+  props: ["copyright"]
 };
 </script>
 
 <style lang="less" scoped>
 .footer {
-  padding: 48px 16px 24px;
+  padding: 24px 16px 10px;
   text-align: center;
   .copyright {
     color: @text-color-second;

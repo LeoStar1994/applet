@@ -6,4 +6,8 @@ module.exports = {
   LOGIN: `${BASE_URL}/login`,
   LOGINBYPHONE: `${BASE_URL}/loginByPhone`,
   ROUTES: `${BASE_URL}/routes`,
+  // version
+  VERSIONTABLEDATA: `${BASE_URL}/getVersionTableData`,
+  APPLETNAME: `${BASE_URL}/getAppletNameList`,
+  ACCOUNT: `${BASE_URL}/getAccountList`
 };

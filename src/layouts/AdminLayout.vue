@@ -61,15 +61,15 @@ export default {
   components: { SideMenu, Drawer, PageFooter, AdminHeader },
   data() {
     return {
-      minHeight: window.innerHeight - 64 - 122,
+      minHeight: window.innerHeight - 64 - 85,
       collapsed: false,
       showSetting: false,
-      drawerOpen: false,
+      drawerOpen: false
     };
   },
   provide() {
     return {
-      adminLayout: this,
+      adminLayout: this
     };
   },
   watch: {
@@ -83,7 +83,7 @@ export default {
       if (!val) {
         this.drawerOpen = false;
       }
-    },
+    }
   },
   computed: {
     ...mapState("setting", [
@@ -96,7 +96,7 @@ export default {
       "fixedSideBar",
       "fixedTabs",
       "hideSetting",
-      "multiPage",
+      "multiPage"
     ]),
     ...mapGetters("setting", ["firstMenu", "subMenu", "menuData"]),
     sideMenuWidth() {
@@ -117,7 +117,7 @@ export default {
     sideMenuData() {
       const { layout, menuData, subMenu } = this;
       return layout === "mix" ? subMenu : menuData;
-    },
+    }
   },
   methods: {
     ...mapMutations("setting", ["correctPageMinHeight", "setActivatedFirst"]),
@@ -133,13 +133,13 @@ export default {
         matched = matched.slice(0, matched.length - 1);
         const { firstMenu } = this;
         for (let menu of firstMenu) {
-          if (matched.findIndex((item) => item.path === menu.fullPath) !== -1) {
+          if (matched.findIndex(item => item.path === menu.fullPath) !== -1) {
             this.setActivatedFirst(menu.fullPath);
             break;
           }
         }
       }
-    },
+    }
   },
   created() {
     this.correctPageMinHeight(this.minHeight - 24);
@@ -147,7 +147,7 @@ export default {
   },
   beforeDestroy() {
     this.correctPageMinHeight(-this.minHeight + 24);
-  },
+  }
 };
 </script>
 

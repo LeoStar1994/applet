@@ -155,7 +155,7 @@ export default {
       currentTabKey: "commonLogin",
       fetchingCode: false,
       countDownSceonds: 60,
-      timer: null,
+      timer: null
     };
   },
   methods: {
@@ -193,7 +193,7 @@ export default {
     // 账户密码点击登录
     onSubmit(e) {
       e.preventDefault();
-      this.form.validateFields((err) => {
+      this.form.validateFields(err => {
         if (!err) {
           this.logging = true;
           const name = this.form.getFieldValue("name");
@@ -215,10 +215,10 @@ export default {
         // 设置token认证信息
         setAuthorization({
           token: loginRes.data.token,
-          expireAt: new Date(loginRes.data.expireAt),
+          expireAt: new Date(loginRes.data.expireAt)
         });
         // 获取路由配置
-        getRoutesConfig().then((result) => {
+        getRoutesConfig().then(result => {
           const routesConfig = result.data.data;
           loadRoutes(routesConfig);
           this.$router.push("/appletManagement/authorization"); // 成功登录页跳转首页
@@ -236,7 +236,7 @@ export default {
     // 手机号登录
     onSubmitByPhone(e) {
       e.preventDefault();
-      this.form1.validateFields((err) => {
+      this.form1.validateFields(err => {
         if (!err) {
           this.logging = true;
           const allValues = this.form1.getFieldsValue();
@@ -261,8 +261,8 @@ export default {
     },
 
     // 忘记密码
-    forgetPassword() {},
-  },
+    forgetPassword() {}
+  }
 };
 </script>
 
@@ -281,6 +281,7 @@ export default {
       .logo {
         width: 310px;
         height: 52px;
+        cursor: pointer;
         vertical-align: top;
       }
       .title {

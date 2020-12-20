@@ -63,7 +63,11 @@
       </div>
       <!-- table -->
       <standard-table :columns="columns"
-                      :dataSource="dataSource">
+                      :dataSource="dataSource"
+                      :loading="tableLoading"
+                      :pagination="pagination"
+                      rowKey="id"
+                      @change="handleTableChange">
         <div slot="auditResult"
              slot-scope="{text}">
           <span :class="[text === 1 ? 'text-red': '', text === 2 ? 'text-orange': '', text === 3 ? 'text-blue': '']">{{auditResultMapText[text]}}</span>
@@ -90,20 +94,24 @@
              destroyOnClose
              @ok="handleOk"
              @cancel="handleCancel">
-      <div class="clearfix d-flex">
-        <a-upload :file-list="fileList"
+      <div class="clearfix">
+        <span>上传文件：</span>
+        <a-upload directory
+                  :file-list="fileList"
                   :remove="handleRemove"
                   :before-upload="beforeUpload">
           <a-button>
-            <a-icon type="upload" /> Select File
+            <a-icon type="file-add" /> 选择文件
           </a-button>
         </a-upload>
         <a-button type="primary"
                   :disabled="fileList.length === 0"
                   :loading="uploading"
-                  class="ml-12"
+                  style="margin-left:70px;"
+                  class="mt-20"
                   @click="handleUpload">
-          {{ uploading ? '上传服务器' : '请先上传文件' }}
+          <a-icon type="upload" />
+          {{ uploading ? '上传中。' : '上传文件' }}
         </a-button>
       </div>
     </a-modal>
@@ -113,73 +121,46 @@
 <script>
 import { mapState } from "vuex";
 import StandardTable from "@/components/table/StandardTable";
+import {
+  getVerisonTableData,
+  appletNameList,
+  accountList
+} from "@/services/applet";
+// table columns data
 const columns = [
   {
     title: "小程序名称",
-    dataIndex: "appletName",
+    dataIndex: "appletName"
   },
   {
     title: "关联用户",
-    dataIndex: "account",
+    dataIndex: "account"
   },
   {
     title: "管理员账号",
-    dataIndex: "adminAccount",
+    dataIndex: "adminAccount"
   },
   {
     title: "当前版本",
-    dataIndex: "currentVersion",
+    dataIndex: "currentVersion"
   },
   {
     title: "最新版本",
-    dataIndex: "newestVersion",
+    dataIndex: "newestVersion"
   },
   {
     title: "审核结果",
     dataIndex: "auditResult",
-    scopedSlots: { customRender: "auditResult" },
+    scopedSlots: { customRender: "auditResult" }
   },
   {
     title: "失败原因",
-    dataIndex: "failReason",
+    dataIndex: "failReason"
   },
   {
     title: "操作",
-    scopedSlots: { customRender: "action" },
-  },
-];
-
-const dataSource = [
-  {
-    appletName: "智慧冰球1",
-    account: "中国冰球协会",
-    adminAccount: "admin1",
-    currentVersion: "1.5",
-    newestVersion: "1.6",
-    auditResult: 1,
-    failReason: "未提供相应证明",
-    id: 1,
-  },
-  {
-    appletName: "智慧冰球2",
-    account: "中国冰球协会",
-    adminAccount: "admin2",
-    currentVersion: "1.5",
-    newestVersion: "1.6",
-    auditResult: 2,
-    failReason: "未提供相应证明",
-    id: 2,
-  },
-  {
-    appletName: "智慧冰球3",
-    account: "中国冰球协会",
-    adminAccount: "admin3",
-    currentVersion: "1.5",
-    newestVersion: "1.6",
-    auditResult: 3,
-    failReason: "未提供相应证明",
-    id: 3,
-  },
+    scopedSlots: { customRender: "action" }
+  }
 ];
 
 export default {
@@ -188,39 +169,48 @@ export default {
   i18n: require("./i18n"),
   data() {
     return {
+      advanced: true,
+      tableLoading: false,
+      columns: columns,
+      dataSource: [],
+      pagination: {
+        pageSize: 10,
+        total: 0,
+        pageSizeOptions: ["10", "15", "20"],
+        showSizeChanger: true,
+        showQuickJumper: true,
+        showTotal: total => `共 ${total} 条数据`
+      },
       labelCol: { span: 4 },
       wrapperCol: { span: 14, offset: 1 },
       form: {
         appletName: undefined,
-        account: undefined,
+        account: undefined
       },
       // 搜索项校验规则
       rules: {
         appletName: [],
-        account: [],
+        account: []
       },
       appletNameList: [
         { label: "小程序1", id: 1 },
-        { label: "小程序2", id: 2 },
+        { label: "小程序2", id: 2 }
       ],
       accountList: [
         { label: "用户1", id: 1 },
-        { label: "用户2", id: 2 },
+        { label: "用户2", id: 2 }
       ],
       auditResultMapText: {
         1: "审核中",
         2: "审核失败",
-        3: "审核通过",
+        3: "审核通过"
       },
-      advanced: true,
-      columns: columns,
-      dataSource: dataSource,
       // modal data
       visible: false,
       confirmLoading: false,
       // upload data
       fileList: [],
-      uploading: false,
+      uploading: false
     };
   },
   computed: {
@@ -228,29 +218,87 @@ export default {
     // page header desc
     desc() {
       return this.$t("description");
-    },
+    }
+  },
+  created() {
+    // this.getAppletNameList();
+    // this.getAccountList();
   },
   methods: {
+    // 获取小程序名称list
+    getAppletNameList() {
+      appletNameList().then(res => {
+        const result = res.data;
+        if (result.code === 0) {
+          this.appletNameList = result.data;
+        }
+      });
+    },
+
+    // 获取关联用户list
+    getAccountList() {
+      accountList().then(res => {
+        const result = res.data;
+        if (result.code === 0) {
+          this.accountList = result.data;
+        }
+      });
+    },
+
     // 切换搜索框收起展开
     toggleAdvanced() {
       this.advanced = !this.advanced;
     },
+
     // 上传小程序
     uploadApplet() {
+      this.fileList = [];
       this.visible = true;
     },
+
     // 通知发布
     noticeIssue() {},
+
     // 返回上一个版本
     backLastVersion() {},
+
     // 列表查询
     searchTableData() {
-      // const data = { ...this.form };
+      const data = { ...this.form };
+      this.tableLoading = true;
+      getVerisonTableData(data).then(res => {
+        const result = res.data;
+        if (result.code === 0) {
+          this.dataSource = result.data;
+          this.pagination.total = result.total;
+          console.log(this.pagination);
+        }
+        this.tableLoading = false;
+      });
     },
+
+    handleTableChange(pagination, filters, sorter) {
+      console.log(pagination);
+      console.log(filters);
+      console.log(sorter);
+      const pager = { ...this.pagination };
+      pager.current = pagination.current;
+      // this.pagination = pager;
+      // this.fetch({
+      //   results: pagination.pageSize,
+      //   page: pagination.current,
+      //   sortField: sorter.field,
+      //   sortOrder: sorter.order,
+      //   ...filters
+      // });
+    },
+
     // 重置
     reset() {
       this.$refs.ruleForm.resetFields();
+      this.dataSource = [];
     },
+
     // modal
     handleOk() {
       this.confirmLoading = true;
@@ -260,7 +308,8 @@ export default {
       }, 2000);
     },
     handleCancel() {
-      console.log("Clicked cancel button");
+      // console.log("Clicked cancel button");
+      this.fileList = [];
       this.visible = false;
     },
 
@@ -278,14 +327,21 @@ export default {
     handleUpload() {
       const { fileList } = this;
       const formData = new FormData();
-      fileList.forEach((file) => {
+      fileList.forEach(file => {
         formData.append("files[]", file);
       });
       this.uploading = true;
 
       // You can use any AJAX library you like
-    },
+    }
   },
+  // 监听页面离开事件， 清空页面数据
+  beforeRouteLeave(to, from, next) {
+    if (to.path !== from.path) {
+      this.reset();
+    }
+    next();
+  }
 };
 </script>
 
