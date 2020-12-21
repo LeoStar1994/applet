@@ -2,11 +2,11 @@
  * @Description: 小程序管理 / 版本控制.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-19 19:26:46
+ * @LastEditTime: 2020-12-21 14:13:08
  * @LastEditors: Leo
 -->
 <template>
-  <div>
+  <div class="version-page">
     <a-card class="content-contain"
             :style="`min-height: ${pageMinHeight}px`">
       <!-- search -->
@@ -124,43 +124,43 @@ import StandardTable from "@/components/table/StandardTable";
 import {
   getVerisonTableData,
   appletNameList,
-  accountList
+  accountList,
 } from "@/services/applet";
 // table columns data
 const columns = [
   {
     title: "小程序名称",
-    dataIndex: "appletName"
+    dataIndex: "appletName",
   },
   {
     title: "关联用户",
-    dataIndex: "account"
+    dataIndex: "account",
   },
   {
     title: "管理员账号",
-    dataIndex: "adminAccount"
+    dataIndex: "adminAccount",
   },
   {
     title: "当前版本",
-    dataIndex: "currentVersion"
+    dataIndex: "currentVersion",
   },
   {
     title: "最新版本",
-    dataIndex: "newestVersion"
+    dataIndex: "newestVersion",
   },
   {
     title: "审核结果",
     dataIndex: "auditResult",
-    scopedSlots: { customRender: "auditResult" }
+    scopedSlots: { customRender: "auditResult" },
   },
   {
     title: "失败原因",
-    dataIndex: "failReason"
+    dataIndex: "failReason",
   },
   {
     title: "操作",
-    scopedSlots: { customRender: "action" }
-  }
+    scopedSlots: { customRender: "action" },
+  },
 ];
 
 export default {
@@ -179,38 +179,38 @@ export default {
         pageSizeOptions: ["10", "15", "20"],
         showSizeChanger: true,
         showQuickJumper: true,
-        showTotal: total => `共 ${total} 条数据`
+        showTotal: (total) => `共 ${total} 条数据`,
       },
       labelCol: { span: 4 },
       wrapperCol: { span: 14, offset: 1 },
       form: {
         appletName: undefined,
-        account: undefined
+        account: undefined,
       },
       // 搜索项校验规则
       rules: {
         appletName: [],
-        account: []
+        account: [],
       },
       appletNameList: [
         { label: "小程序1", id: 1 },
-        { label: "小程序2", id: 2 }
+        { label: "小程序2", id: 2 },
       ],
       accountList: [
         { label: "用户1", id: 1 },
-        { label: "用户2", id: 2 }
+        { label: "用户2", id: 2 },
       ],
       auditResultMapText: {
         1: "审核中",
         2: "审核失败",
-        3: "审核通过"
+        3: "审核通过",
       },
       // modal data
       visible: false,
       confirmLoading: false,
       // upload data
       fileList: [],
-      uploading: false
+      uploading: false,
     };
   },
   computed: {
@@ -218,7 +218,7 @@ export default {
     // page header desc
     desc() {
       return this.$t("description");
-    }
+    },
   },
   created() {
     // this.getAppletNameList();
@@ -227,7 +227,7 @@ export default {
   methods: {
     // 获取小程序名称list
     getAppletNameList() {
-      appletNameList().then(res => {
+      appletNameList().then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.appletNameList = result.data;
@@ -237,7 +237,7 @@ export default {
 
     // 获取关联用户list
     getAccountList() {
-      accountList().then(res => {
+      accountList().then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.accountList = result.data;
@@ -266,12 +266,11 @@ export default {
     searchTableData() {
       const data = { ...this.form };
       this.tableLoading = true;
-      getVerisonTableData(data).then(res => {
+      getVerisonTableData(data).then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.dataSource = result.data;
           this.pagination.total = result.total;
-          console.log(this.pagination);
         }
         this.tableLoading = false;
       });
@@ -327,13 +326,13 @@ export default {
     handleUpload() {
       const { fileList } = this;
       const formData = new FormData();
-      fileList.forEach(file => {
+      fileList.forEach((file) => {
         formData.append("files[]", file);
       });
       this.uploading = true;
 
       // You can use any AJAX library you like
-    }
+    },
   },
   // 监听页面离开事件， 清空页面数据
   beforeRouteLeave(to, from, next) {
@@ -341,7 +340,7 @@ export default {
       this.reset();
     }
     next();
-  }
+  },
 };
 </script>
 

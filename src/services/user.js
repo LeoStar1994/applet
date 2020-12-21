@@ -1,21 +1,34 @@
-import { LOGIN, LOGINBYPHONE, ROUTES } from "@/services/api";
+import {
+  LOGIN,
+  LOGINVERIFYCODE,
+  LOGINSMSCODE,
+  LOGINBYPHONE,
+  ROUTES,
+} from "@/services/api";
 import { request, METHOD, removeAuthorization } from "@/utils/request";
 
 /**
- * 账户密码登录服务
+ * 账户密码登录
  * @param name 账户名
  * @param password 账户密码
  * @returns {Promise<AxiosResponse<T>>}
  */
-export async function login(name, password) {
-  return request(LOGIN, METHOD.POST, {
-    name,
-    password
-  });
+export async function login(data) {
+  return request(LOGIN, METHOD.POST, data);
+}
+
+// 获取图形验证码
+export async function verifyCode() {
+  return request(LOGINVERIFYCODE, METHOD.POST);
+}
+
+// 获取图形验证码
+export async function SMSCode(data) {
+  return request(LOGINSMSCODE, METHOD.POST, data);
 }
 
 /**
- * 账户密码登录服务
+ * 手机号登录
  * @param phone 手机号
  * @param verificationCode 手机验证码
  * @returns {Promise<AxiosResponse<T>>}
@@ -44,5 +57,5 @@ export default {
   login,
   logout,
   loginByPhone,
-  getRoutesConfig
+  getRoutesConfig,
 };

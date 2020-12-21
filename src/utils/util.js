@@ -53,6 +53,17 @@ export function isEmpty(val) {
   return false;
 }
 
+/**
+ * @description: check val is right phoneNumber.
+ * @param : val{string}
+ * @return {boolean}
+ * @author: Leo
+ */
+export function isRihgtPhone(val) {
+  const phoneExp = /^1\d{10}$/;
+  return phoneExp.test(val);
+}
+
 export function isRegExp(v) {
   return _toString.call(v) === "[object RegExp]";
 }

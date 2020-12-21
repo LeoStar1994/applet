@@ -1,4 +1,9 @@
-import { VERSIONTABLEDATA, APPLETNAME, ACCOUNT } from "@/services/api";
+import {
+  VERSIONTABLEDATA,
+  APPLETNAME,
+  ACCOUNT,
+  AUTHORTABLEDATA,
+} from "@/services/api";
 import { request, METHOD } from "@/utils/request";
 
 /**
@@ -19,6 +24,11 @@ export async function appletNameList() {
 // 获取关联用户list
 export async function accountList() {
   return request(ACCOUNT, METHOD.GET);
+}
+
+// 版本控制table查询
+export async function getAuthorTableData() {
+  return request(AUTHORTABLEDATA, METHOD.GET);
 }
 
 // export default {

@@ -2,7 +2,7 @@
  * @Description: login登录页面.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-19 16:32:07
+ * @LastEditTime: 2020-12-21 17:45:06
  * @LastEditors: Leo
 -->
 
@@ -40,7 +40,7 @@
                        size="default"
                        :maxLength="20"
                        placeholder="请输入您的账号"
-                       v-decorator="['name', {rules: [{ required: true, whitespace: true, validator: handleCheckAccount}]}]">
+                       v-decorator="['account', {rules: [{ required: true, whitespace: true, validator: handleCheckAccount}]}]">
                 <a-icon slot="prefix"
                         type="user" />
               </a-input>
@@ -56,6 +56,21 @@
                 <a-icon slot="prefix"
                         type="lock" />
               </a-input>
+            </a-form-item>
+            <!-- 图形验证码 -->
+            <a-form-item>
+              <div class="d-flex ai-center">
+                <a-input size="default"
+                         placeholder="请输入验证码"
+                         class="flex-1 mr-16"
+                         :maxLength="4"
+                         v-decorator="['verifyCode', {rules: [{ required: true, message: '请输入验证码', whitespace: true}]}]">
+                </a-input>
+                <img :src="verifyCodeImgUrl"
+                     class="w30p h30 cursor-pointer"
+                     @click="fetchVerifyCode"
+                     alt="图形验证码">
+              </div>
             </a-form-item>
           </a-form>
         </a-tab-pane>
@@ -75,7 +90,7 @@
               <a-input size="default"
                        placeholder="请输入手机号"
                        :maxLength="13"
-                       v-decorator="['phone', {rules: [{ required: true, message: '请输入手机号', whitespace: true}]}]">
+                       v-decorator="['mobile', {rules: [{ required: true, validator: handleCheckMobile, whitespace: true}]}]">
                 <a-icon slot="prefix"
                         type="mobile" />
               </a-input>
@@ -87,8 +102,8 @@
                 <a-col :span="14">
                   <a-input size="default"
                            placeholder="请输入验证码"
-                           :maxLength="8"
-                           v-decorator="['verificationCode', {rules: [{ required: true, message: '请输入验证码', whitespace: true}]}]">
+                           :maxLength="4"
+                           v-decorator="['verifyCode', {rules: [{ required: true, message: '请输入验证码', whitespace: true}]}]">
                     <a-icon slot="prefix"
                             type="mail" />
                   </a-input>
@@ -99,7 +114,7 @@
                             class="captcha-button"
                             type="primary"
                             @click="getVerificationCode"
-                            :disabled="$isEmpty(form1.getFieldValue('phone')) || fetchingCode"
+                            :disabled="!$isRihgtPhone(form1.getFieldValue('mobile')) || fetchingCode"
                             size="default">
                     <span v-if="!fetchingCode"
                           style="font-size: 12px;">获取验证码</span>
@@ -137,7 +152,13 @@
 
 <script>
 import CommonLayout from "@/layouts/CommonLayout";
-import { login, loginByPhone, getRoutesConfig } from "@/services/user";
+import {
+  verifyCode,
+  login,
+  SMSCode,
+  loginByPhone,
+  getRoutesConfig,
+} from "@/services/user";
 import { setAuthorization } from "@/utils/request";
 import { loadRoutes } from "@/utils/routerUtil";
 import { mapMutations } from "vuex";
@@ -155,8 +176,13 @@ export default {
       currentTabKey: "commonLogin",
       fetchingCode: false,
       countDownSceonds: 60,
-      timer: null
+      timer: null,
+      verifyCodeImgUrl: null,
+      verifyCodeToken: null,
     };
+  },
+  created() {
+    this.fetchVerifyCode();
   },
   methods: {
     ...mapMutations("account", ["setUser", "setPermissions", "setRoles"]),
@@ -181,6 +207,29 @@ export default {
       callback();
     },
 
+    // 手机号校验
+    handleCheckMobile(rule, value, callback) {
+      if (this.$isEmpty(value)) {
+        callback("请输入您的手机号");
+      } else if (!this.$isRihgtPhone(value)) {
+        callback("手机号格式不正确！");
+      }
+      callback();
+    },
+
+    // 获取图形验证码
+    fetchVerifyCode() {
+      verifyCode().then((res) => {
+        const result = res.data;
+        if (result.code === 0) {
+          this.verifyCodeImgUrl = `data:image/png;base64,${result.data.vPngBase64}`;
+          this.verifyCodeToken = result.data.vToken;
+        } else {
+          this.$message.error(result.desc);
+        }
+      });
+    },
+
     // 点击登录按钮
     loginSubmit(e) {
       if (this.currentTabKey === "commonLogin") {
@@ -193,12 +242,15 @@ export default {
     // 账户密码点击登录
     onSubmit(e) {
       e.preventDefault();
-      this.form.validateFields(err => {
+      this.form.validateFields((err) => {
         if (!err) {
           this.logging = true;
-          const name = this.form.getFieldValue("name");
-          const password = this.form.getFieldValue("password");
-          login(name, password).then(this.afterLogin);
+          const allValues = this.form.getFieldsValue();
+          const data = {
+            ...allValues,
+            verifyCodeToken: this.verifyCodeToken,
+          };
+          login(data).then(this.afterLogin);
         }
       });
     },
@@ -207,7 +259,8 @@ export default {
     afterLogin(res) {
       this.logging = false;
       const loginRes = res.data;
-      if (loginRes.code >= 0) {
+      if (loginRes.code == 0) {
+        console.log(res.data);
         const { user, permissions, roles } = loginRes.data;
         this.setUser(user);
         this.setPermissions(permissions);
@@ -215,10 +268,10 @@ export default {
         // 设置token认证信息
         setAuthorization({
           token: loginRes.data.token,
-          expireAt: new Date(loginRes.data.expireAt)
+          expireAt: new Date(loginRes.data.expireAt),
         });
         // 获取路由配置
-        getRoutesConfig().then(result => {
+        getRoutesConfig().then((result) => {
           const routesConfig = result.data.data;
           loadRoutes(routesConfig);
           this.$router.push("/appletManagement/authorization"); // 成功登录页跳转首页
@@ -236,7 +289,7 @@ export default {
     // 手机号登录
     onSubmitByPhone(e) {
       e.preventDefault();
-      this.form1.validateFields(err => {
+      this.form1.validateFields((err) => {
         if (!err) {
           this.logging = true;
           const allValues = this.form1.getFieldsValue();
@@ -245,7 +298,7 @@ export default {
       });
     },
 
-    // 获取验证码
+    // 获取手机验证码
     getVerificationCode() {
       this.fetchingCode = true;
       clearInterval(this.timer);
@@ -255,14 +308,19 @@ export default {
         } else {
           this.fetchingCode = false;
           this.countDownSceonds = 60;
-          // ajax
         }
       }, 1000);
+      const mobile = this.form1.getFieldValue("mobile");
+      // ajax
+      SMSCode({ mobile }).then((res) => {
+        const result = res.data;
+        console.log(result);
+      });
     },
 
     // 忘记密码
-    forgetPassword() {}
-  }
+    forgetPassword() {},
+  },
 };
 </script>
 

@@ -36,7 +36,7 @@ each(@percents, {
     }
 
     .h@{key} {
-      width: @value
+      height: @value
     }
   }
 
@@ -46,12 +46,12 @@ each(@percents, {
 .numbers(@widthMax);
 
 .numbers(@n, @i: 10) when (@i =< @n) {
-  .w-@{i} {
-    font-size: 0px + @i;
+  .w@{i} {
+    width: 0px + @i;
   }
 
-  .h-@{i} {
-    font-size: 0px + @i;
+  .h@{i} {
+    height: 0px + @i;
   }
 
   .numbers(@n, (@i + @widthStep))
@@ -101,6 +101,17 @@ each(@spacing-types, .(@typeVal, @tpyeKey) {
   }
 
   .fz(@n, (@i + @fontSizeStep))
+}
+
+// line-height
+.lh(@lineHeightMax);
+
+.lh(@n, @i: 0) when (@i =< @n) {
+  .lh-@{i} {
+    line-height: 0px + @i;
+  }
+
+  .lh(@n, (@i + @lineHeightStep))
 }
 
 // color
