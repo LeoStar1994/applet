@@ -4,9 +4,9 @@
 const BASE_URL = process.env.VUE_APP_API_BASE_URL;
 module.exports = {
   // login
-  LOGIN: `http://172.18.1.7:8080/login/go`,
-  LOGINVERIFYCODE: `http://172.18.1.7:8080/login/verifyCode/image`,
-  LOGINSMSCODE: `http://172.18.1.7:8080/login/verifyCode/sms`,
+  LOGIN: `${BASE_URL}/login/go`,
+  LOGINVERIFYCODE: `${BASE_URL}/login/verifyCode/image`,
+  LOGINSMSCODE: `${BASE_URL}/login/verifyCode/sms`,
   LOGINBYPHONE: `${BASE_URL}/loginByPhone`,
   ROUTES: `${BASE_URL}/routes`,
 

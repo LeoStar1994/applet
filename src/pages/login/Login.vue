@@ -2,7 +2,7 @@
  * @Description: login登录页面.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-21 17:45:06
+ * @LastEditTime: 2020-12-22 18:04:14
  * @LastEditors: Leo
 -->
 
@@ -163,6 +163,45 @@ import { setAuthorization } from "@/utils/request";
 import { loadRoutes } from "@/utils/routerUtil";
 import { mapMutations } from "vuex";
 
+const userInfo = {
+  name: "lucky",
+  avatar: "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
+  address: "@CITY",
+  position: {
+    CN: "前端工程师 | 蚂蚁金服-计算服务事业群-VUE平台",
+    HK: "前端工程師 | 螞蟻金服-計算服務事業群-VUE平台",
+    US:
+      "Front-end engineer | Ant Financial - Computing services business group - VUE platform",
+  },
+};
+const timeList = [
+  {
+    CN: "早上好",
+    HK: "早晨啊",
+    US: "Good morning",
+  },
+  {
+    CN: "上午好",
+    HK: "上午好",
+    US: "Good morning",
+  },
+  {
+    CN: "中午好",
+    HK: "中午好",
+    US: "Good afternoon",
+  },
+  {
+    CN: "下午好",
+    HK: "下午好",
+    US: "Good afternoon",
+  },
+  {
+    CN: "晚上好",
+    HK: "晚上好",
+    US: "Good evening",
+  },
+];
+
 export default {
   name: "Login",
   components: { CommonLayout },
@@ -186,13 +225,30 @@ export default {
   },
   methods: {
     ...mapMutations("account", ["setUser", "setPermissions", "setRoles"]),
+    // 根据当前时间转换中文提示语
+    timeFix() {
+      const time = new Date();
+      const hour = time.getHours();
+      return hour < 9
+        ? timeList[0]
+        : hour <= 11
+        ? timeList[1]
+        : hour <= 13
+        ? timeList[2]
+        : hour <= 20
+        ? timeList[3]
+        : timeList[4];
+    },
+
     // tab切换登录方式
     tabChange(activeKey) {
       this.currentTabKey = activeKey;
       if (activeKey === "commonLogin") {
         this.form.resetFields();
+        this.error = "";
       } else {
         this.form1.resetFields();
+        this.errorByPhone = "";
       }
     },
 
@@ -258,30 +314,36 @@ export default {
     // 登录后相关设置
     afterLogin(res) {
       this.logging = false;
-      const loginRes = res.data;
+      const loginRes = {
+        ...res.data,
+        expireAt: new Date(new Date(new Date().getTime() + 30 * 60 * 1000)),
+        user: { ...userInfo },
+        message: this.timeFix().CN + "，欢迎回来",
+      };
       if (loginRes.code == 0) {
-        console.log(res.data);
-        const { user, permissions, roles } = loginRes.data;
-        this.setUser(user);
-        this.setPermissions(permissions);
-        this.setRoles(roles);
+        // const { user, permissions, roles } = loginRes.data;
+        this.setUser(loginRes.user); // 设置user信息
+        // this.setPermissions();
+        // this.setRoles();
         // 设置token认证信息
         setAuthorization({
-          token: loginRes.data.token,
-          expireAt: new Date(loginRes.data.expireAt),
+          token: loginRes.data,
+          expireAt: new Date(loginRes.expireAt),
         });
         // 获取路由配置
         getRoutesConfig().then((result) => {
-          const routesConfig = result.data.data;
+          const routesConfig = result.data.data.menuTree;
+          loginRes.user.name = result.data.data.account;
+          this.setUser(loginRes.user); // 设置user信息
           loadRoutes(routesConfig);
           this.$router.push("/appletManagement/authorization"); // 成功登录页跳转首页
           this.$message.success(loginRes.message, 3);
         });
       } else {
-        if (this.currentTabKey === "common") {
-          this.error = loginRes.message;
+        if (this.currentTabKey === "commonLogin") {
+          this.error = loginRes.desc;
         } else {
-          this.errorByPhone = loginRes.message;
+          this.errorByPhone = loginRes.desc;
         }
       }
     },

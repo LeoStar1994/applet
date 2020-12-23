@@ -143,7 +143,6 @@ export default {
 </script>
 
 <style lang="less">
-@import "../less/style";
 .page-header {
   margin: 0 -24px 0;
 }

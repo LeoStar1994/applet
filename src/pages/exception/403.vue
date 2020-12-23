@@ -1,5 +1,5 @@
 <template>
-  <exception-page home-route="/appletManagement"
+  <exception-page home-route="/appletManagement/authorization"
                   :style="`min-height: ${minHeight}`"
                   type="403" />
 </template>
