@@ -1,12 +1,12 @@
 <!--
- * @Description: 小程序管理 / 授权管理.
+ * @Description: 小程序管理 / 绑定用户.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-21 15:32:41
+ * @LastEditTime: 2021-01-08 15:51:00
  * @LastEditors: Leo
 -->
 <template>
-  <div class="authorization-page">
+  <div class="bindingUser-page">
     <a-card class="content-contain"
             :style="`min-height: ${pageMinHeight}px`">
       <!-- search -->
@@ -29,12 +29,19 @@
              slot-scope="{text}">
           <img :src="text"
                class="w26 h26"
-               alt="logo_icon">
+               alt="图标">
+        </div>
+        <!-- 二维码 -->
+        <div slot="qrcode"
+             slot-scope="{text}">
+          <img :src="text"
+               class="w26 h26"
+               alt="二维码">
         </div>
         <div slot="action"
-             slot-scope="{text, record}">
+             slot-scope="{record}">
           <a style="margin-right: 12px"
-             @click="chooseAccount(text, record)">选择用户</a>
+             @click="chooseAccount(record)">选择用户</a>
         </div>
       </standard-table>
     </a-card>
@@ -44,25 +51,42 @@
 <script>
 import { mapState } from "vuex";
 import StandardTable from "@/components/table/StandardTable";
-import { getAuthorTableData } from "@/services/applet";
+import { getTableData, commitBinding } from "@/services/bindingUser";
 // table columns data
 const columns = [
   {
+    title: "APPID",
+    dataIndex: "appid",
+  },
+  {
     title: "图标",
-    dataIndex: "appletIcon",
+    dataIndex: "headImg",
     scopedSlots: { customRender: "appletIcon" },
   },
   {
     title: "小程序名称",
-    dataIndex: "appletName",
+    dataIndex: "nickName",
   },
   {
-    title: "关联用户",
-    dataIndex: "account",
+    title: "主体名称",
+    dataIndex: "principalName",
   },
   {
-    title: "管理员账号",
-    dataIndex: "adminAccount",
+    title: "小程序二维码",
+    dataIndex: "qrcodeUrl",
+    scopedSlots: { customRender: "qrcode" },
+  },
+  {
+    title: "功能介绍",
+    dataIndex: "signature",
+  },
+  {
+    title: "用户",
+    dataIndex: "userName",
+  },
+  {
+    title: "账号",
+    dataIndex: "userAccount",
   },
   {
     title: "操作",
@@ -71,7 +95,7 @@ const columns = [
 ];
 
 export default {
-  name: "Authorization",
+  name: "bindingUser",
   components: { StandardTable },
   i18n: require("./i18n"),
   data() {
@@ -81,6 +105,7 @@ export default {
       dataSource: [],
       pagination: {
         pageSize: 10,
+        pageNo: 1,
         total: 0,
         pageSizeOptions: ["10", "15", "20"],
         showSizeChanger: true,
@@ -97,7 +122,7 @@ export default {
     },
   },
   created() {
-    this.searchTableData();
+    // this.searchTableData();
   },
   methods: {
     // 新增
@@ -106,34 +131,45 @@ export default {
     },
 
     // 选择用户
-    chooseAccount() {},
+    chooseAccount(rowData) {
+      const data = {
+        appid: rowData.appid,
+        userIdentify: rowData.userIdentify,
+      };
+      commitBinding(data).then((res) => {
+        const result = res.data;
+        if (result.code === 0) {
+          console.log(result);
+        } else {
+          this.$message.error(result.desc);
+        }
+      });
+    },
 
     // 列表查询
     searchTableData() {
-      // const data = { ...this.form };
+      const data = {
+        pageNo: this.pagination.pageNo,
+        pageSize: this.pagination.pageSize,
+      };
       this.tableLoading = true;
-      getAuthorTableData().then((res) => {
+      getTableData(data).then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.dataSource = result.data;
           this.pagination.total = result.total;
+        } else {
+          this.$message.error(result.desc);
         }
         this.tableLoading = false;
       });
     },
 
-    handleTableChange(pagination, filters, sorter) {
-      console.log(pagination, filters, sorter);
-      const pager = { ...this.pagination };
-      pager.current = pagination.current;
-      // this.pagination = pager;
-      // this.fetch({
-      //   results: pagination.pageSize,
-      //   page: pagination.current,
-      //   sortField: sorter.field,
-      //   sortOrder: sorter.order,
-      //   ...filters
-      // });
+    handleTableChange(pagination) {
+      let { current, pageSize } = pagination;
+      this.pagination.pageSize = pageSize;
+      this.pagination.pageNo = current;
+      this.searchTableData();
     },
 
     // 重置
@@ -142,17 +178,17 @@ export default {
     },
   },
   watch: {
-    $route(to) {
-      if (to.path.includes("authorization")) {
-        this.searchTableData();
-      }
-    },
+    // $route(to) {
+    //   if (to.path.includes("binding")) {
+    //     this.searchTableData();
+    //   }
+    // },
   },
 };
 </script>
 
 <style lang="less" scoped>
-.authorization-page {
+.bindingUser-page {
   h3 {
     border-bottom: 3px solid #fafafa;
     height: 40px;

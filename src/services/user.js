@@ -4,6 +4,9 @@ import {
   LOGINSMSCODE,
   LOGINBYPHONE,
   ROUTES,
+  FOEGETPASSWORDCODE,
+  FOEGETPASSWORD,
+  RESETPASSWORD,
 } from "@/services/api";
 import { request, METHOD, removeAuthorization } from "@/utils/request";
 
@@ -42,6 +45,21 @@ export async function loginByPhone(data) {
  */
 export async function getRoutesConfig() {
   return request(ROUTES, METHOD.GET);
+}
+
+// 忘记密码获取短信验证码
+export async function forgetSMSCode(data) {
+  return request(FOEGETPASSWORDCODE, METHOD.POST, data);
+}
+
+// 忘记密码验证短信验证码
+export async function checkForgetSMSCode(data) {
+  return request(FOEGETPASSWORD, METHOD.POST, data);
+}
+
+// 忘记密码重置密码
+export async function resetPassword(data) {
+  return request(RESETPASSWORD, METHOD.POST, data);
 }
 
 /**

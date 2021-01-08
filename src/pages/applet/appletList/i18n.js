@@ -1,7 +1,7 @@
 module.exports = {
   messages: {
     CN: {
-      description: "授权公众号管理",
+      description: "小程序列表管理",
     },
     HK: {
       description: "授權公眾號管理",

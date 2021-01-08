@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 版本控制.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-21 14:13:08
+ * @LastEditTime: 2021-01-08 16:33:01
  * @LastEditors: Leo
 -->
 <template>
@@ -121,16 +121,21 @@
 <script>
 import { mapState } from "vuex";
 import StandardTable from "@/components/table/StandardTable";
-import {
-  getVerisonTableData,
-  appletNameList,
-  accountList,
-} from "@/services/applet";
+import { getTableData, appletNameList, accountList } from "@/services/version";
 // table columns data
 const columns = [
   {
+    title: "APPID",
+    dataIndex: "appid",
+  },
+  {
+    title: "图标",
+    dataIndex: "headImg",
+    scopedSlots: { customRender: "appletIcon" },
+  },
+  {
     title: "小程序名称",
-    dataIndex: "appletName",
+    dataIndex: "nickName",
   },
   {
     title: "关联用户",
@@ -142,20 +147,32 @@ const columns = [
   },
   {
     title: "当前版本",
-    dataIndex: "currentVersion",
+    dataIndex: "nowUserVersion",
   },
   {
-    title: "最新版本",
-    dataIndex: "newestVersion",
+    title: "当前体验版",
+    dataIndex: "testerUserVersion",
+  },
+  {
+    title: "上一个线上版本",
+    dataIndex: "lastUserVersion",
+  },
+  {
+    title: "通知更新版本号",
+    dataIndex: "msgUpdateUserVersion",
+  },
+  {
+    title: "通知更新状态",
+    dataIndex: "msgUpdateState",
+  },
+  {
+    title: "提交审核版本号",
+    dataIndex: "submitAuditUserVersion",
   },
   {
     title: "审核结果",
-    dataIndex: "auditResult",
+    dataIndex: "auditState",
     scopedSlots: { customRender: "auditResult" },
-  },
-  {
-    title: "失败原因",
-    dataIndex: "failReason",
   },
   {
     title: "操作",
@@ -175,6 +192,7 @@ export default {
       dataSource: [],
       pagination: {
         pageSize: 10,
+        pageNo: 1,
         total: 0,
         pageSizeOptions: ["10", "15", "20"],
         showSizeChanger: true,
@@ -231,6 +249,8 @@ export default {
         const result = res.data;
         if (result.code === 0) {
           this.appletNameList = result.data;
+        } else {
+          this.$message.error(result.desc);
         }
       });
     },
@@ -241,6 +261,8 @@ export default {
         const result = res.data;
         if (result.code === 0) {
           this.accountList = result.data;
+        } else {
+          this.$message.error(result.desc);
         }
       });
     },
@@ -264,32 +286,29 @@ export default {
 
     // 列表查询
     searchTableData() {
-      const data = { ...this.form };
+      const data = {
+        ...this.form,
+        pageNo: this.pagination.pageNo,
+        pageSize: this.pagination.pageSize,
+      };
       this.tableLoading = true;
-      getVerisonTableData(data).then((res) => {
+      getTableData(data).then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.dataSource = result.data;
           this.pagination.total = result.total;
+        } else {
+          this.$message.error(result.desc);
         }
         this.tableLoading = false;
       });
     },
 
-    handleTableChange(pagination, filters, sorter) {
-      console.log(pagination);
-      console.log(filters);
-      console.log(sorter);
-      const pager = { ...this.pagination };
-      pager.current = pagination.current;
-      // this.pagination = pager;
-      // this.fetch({
-      //   results: pagination.pageSize,
-      //   page: pagination.current,
-      //   sortField: sorter.field,
-      //   sortOrder: sorter.order,
-      //   ...filters
-      // });
+    handleTableChange(pagination) {
+      let { current, pageSize } = pagination;
+      this.pagination.pageSize = pageSize;
+      this.pagination.pageNo = current;
+      this.searchTableData();
     },
 
     // 重置

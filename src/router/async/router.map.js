@@ -72,15 +72,25 @@ const routerMap = {
     icon: "compass",
     component: view.page,
   },
-  authorization: {
-    path: "/appletManagement/authorization",
-    name: "授权管理",
-    component: () => import("@/pages/applet/authorization"),
+  bindingUser: {
+    path: "/appletManagement/bindingUser",
+    name: "绑定用户",
+    component: () => import("@/pages/applet/bindingUser"),
   },
   version: {
     path: "/appletManagement/version",
     name: "版本控制",
     component: () => import("@/pages/applet/version"),
+  },
+  appletList: {
+    path: "/appletManagement/appletList",
+    name: "小程序列表",
+    component: () => import("@/pages/applet/appletList"),
+  },
+  codeTemplate: {
+    path: "/appletManagement/codeTemplate",
+    name: "代码模板列表",
+    component: () => import("@/pages/applet/codeTemplate"),
   },
 };
 export default routerMap;

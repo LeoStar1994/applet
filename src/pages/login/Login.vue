@@ -2,7 +2,7 @@
  * @Description: login登录页面.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2020-12-22 18:04:14
+ * @LastEditTime: 2021-01-08 16:44:59
  * @LastEditors: Leo
 -->
 
@@ -18,7 +18,8 @@
       </div>
     </div>
     <!-- login form -->
-    <div class="login">
+    <div class="login"
+         @keydown="keydownLogin">
       <a-tabs size="large"
               :tabBarStyle="{textAlign: 'center'}"
               @change="tabChange"
@@ -40,9 +41,10 @@
                        size="default"
                        :maxLength="20"
                        placeholder="请输入您的账号"
-                       v-decorator="['account', {rules: [{ required: true, whitespace: true, validator: handleCheckAccount}]}]">
+                       v-decorator="['account', {rules: [{ required: true, whitespace: true, }]}]">
                 <a-icon slot="prefix"
                         type="user" />
+                <!-- validator: handleCheckAccount -->
               </a-input>
             </a-form-item>
             <!-- 密码 -->
@@ -90,7 +92,7 @@
               <a-input size="default"
                        placeholder="请输入手机号"
                        :maxLength="13"
-                       v-decorator="['mobile', {rules: [{ required: true, validator: handleCheckMobile, whitespace: true}]}]">
+                       v-decorator="['mobile', {rules: [{ required: true,  whitespace: true,  validator: handleCheckMobile,}]}]">
                 <a-icon slot="prefix"
                         type="mobile" />
               </a-input>
@@ -147,11 +149,14 @@
            @click="forgetPassword">忘记密码</a>
       </div>
     </div>
+    <!-- 忘记密码 -->
+    <ForgetPassword ref="forgetPassword"></ForgetPassword>
   </common-layout>
 </template>
 
 <script>
 import CommonLayout from "@/layouts/CommonLayout";
+import ForgetPassword from "@/pages/forgetPassword";
 import {
   verifyCode,
   login,
@@ -204,7 +209,7 @@ const timeList = [
 
 export default {
   name: "Login",
-  components: { CommonLayout },
+  components: { CommonLayout, ForgetPassword },
   data() {
     return {
       logging: false,
@@ -238,6 +243,15 @@ export default {
         : hour <= 20
         ? timeList[3]
         : timeList[4];
+    },
+
+    // 回车登录
+    keydownLogin(e) {
+      let theEvent = window.event || e;
+      let key = theEvent.keyCode;
+      if (key === 13) {
+        this.loginSubmit(e);
+      }
     },
 
     // tab切换登录方式
@@ -278,8 +292,8 @@ export default {
       verifyCode().then((res) => {
         const result = res.data;
         if (result.code === 0) {
-          this.verifyCodeImgUrl = `data:image/png;base64,${result.data.vPngBase64}`;
-          this.verifyCodeToken = result.data.vToken;
+          this.verifyCodeImgUrl = result.data.vpngBase64;
+          this.verifyCodeToken = result.data.vtoken;
         } else {
           this.$message.error(result.desc);
         }
@@ -306,7 +320,11 @@ export default {
             ...allValues,
             verifyCodeToken: this.verifyCodeToken,
           };
-          login(data).then(this.afterLogin);
+          login(data)
+            .then(this.afterLogin)
+            .catch(() => {
+              this.logging = false;
+            });
         }
       });
     },
@@ -336,7 +354,7 @@ export default {
           loginRes.user.name = result.data.data.account;
           this.setUser(loginRes.user); // 设置user信息
           loadRoutes(routesConfig);
-          this.$router.push("/appletManagement/authorization"); // 成功登录页跳转首页
+          this.$router.push("/appletManagement/bindingUser"); // 成功登录页跳转首页
           this.$message.success(loginRes.message, 3);
         });
       } else {
@@ -376,12 +394,18 @@ export default {
       // ajax
       SMSCode({ mobile }).then((res) => {
         const result = res.data;
-        console.log(result);
+        if (result.code === 0) {
+          this.$message.success("短信验证码已发送，请注意查收");
+        } else {
+          this.$message.error(result.desc);
+        }
       });
     },
 
     // 忘记密码
-    forgetPassword() {},
+    forgetPassword() {
+      this.$refs.forgetPassword.visible = true;
+    },
   },
 };
 </script>
