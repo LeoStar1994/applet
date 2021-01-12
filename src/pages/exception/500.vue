@@ -1,5 +1,5 @@
 <template>
-  <exception-page home-route="/appletManagement/bindingUser"
+  <exception-page home-route="/welcome"
                   :style="`min-height: ${minHeight}`"
                   type="500" />
 </template>

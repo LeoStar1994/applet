@@ -64,6 +64,12 @@ const routerMap = {
     redirect: "/login",
     component: view.tabs,
   },
+  welcome: {
+    path: "/welcome",
+    name: "欢迎页",
+    invisible: true,
+    component: () => import("@/pages/welcome"),
+  },
 
   // 小程序管理
   appletManagement: {

@@ -6,8 +6,11 @@ import {
   VERSIONAUDIT,
   VERSIONAUDITBACK,
   VERSIONCOMMITCODE,
-  APPLETNAME,
-  ACCOUNT,
+  CODETEMPLATE,
+  VERSIONNOTICE,
+  TESTQRCODE,
+  BINDTESTER,
+  UNBINDTESTER,
 } from "@/services/api";
 import { request, METHOD } from "@/utils/request";
 
@@ -39,17 +42,32 @@ export async function backAudit(data) {
   return request(VERSIONAUDITBACK, METHOD.POST, data);
 }
 
+// 通知发布
+export async function noticeIssueInfo(data) {
+  return request(VERSIONNOTICE, METHOD.POST, data);
+}
+
 // 提交代码
 export async function commitCode(data) {
   return request(VERSIONCOMMITCODE, METHOD.POST, data);
 }
 
-// 获取小程序名称list
-export async function appletNameList() {
-  return request(APPLETNAME, METHOD.GET);
+// 获取代码模板list
+export async function getCodeTemplateList() {
+  return request(CODETEMPLATE, METHOD.GET);
 }
 
-// 获取关联用户list
-export async function accountList() {
-  return request(ACCOUNT, METHOD.GET);
+// 获取体验版二维码
+export async function getQrcode(data) {
+  return request(TESTQRCODE, METHOD.GET, data);
+}
+
+// 绑定体验者
+export async function bindTester(data) {
+  return request(BINDTESTER, METHOD.POST, data);
+}
+
+// 解绑体验者
+export async function unbindTester(data) {
+  return request(UNBINDTESTER, METHOD.POST, data);
 }

@@ -45,6 +45,9 @@ Mock.mock(`${process.env.VUE_APP_API_BASE_URL}/routes`, "get", () => {
             ],
           },
           {
+            router: "welcome",
+          },
+          {
             router: "exception",
             children: ["exp404", "exp403", "exp500"],
           },

@@ -6,7 +6,7 @@
                   v-model="collapsed"
                   :trigger="null">
     <div :class="['logo', theme]">
-      <router-link to="/appletManagement/bindingUser">
+      <router-link to="/welcome">
         <img class="logoImg"
              src="@/assets/img/logo.png">
       </router-link>

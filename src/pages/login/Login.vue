@@ -2,7 +2,7 @@
  * @Description: login登录页面.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-08 16:44:59
+ * @LastEditTime: 2021-01-12 10:45:21
  * @LastEditors: Leo
 -->
 
@@ -354,7 +354,7 @@ export default {
           loginRes.user.name = result.data.data.account;
           this.setUser(loginRes.user); // 设置user信息
           loadRoutes(routesConfig);
-          this.$router.push("/appletManagement/bindingUser"); // 成功登录页跳转首页
+          this.$router.push("/welcome"); // 成功登录页跳转首页
           this.$message.success(loginRes.message, 3);
         });
       } else {
