@@ -1,5 +1,5 @@
 /* 绑定用户 */
-import { BINDINGTABLEDATA, BINDINGCOMMIT } from "@/services/api";
+import { BINDINGTABLEDATA, BINDINGCOMMIT, BINDINGINIT } from "@/services/api";
 import { request, METHOD } from "@/utils/request";
 
 /**
@@ -10,7 +10,12 @@ export async function getTableData(data) {
   return request(BINDINGTABLEDATA, METHOD.GET, data);
 }
 
+// 初始化
+export async function initData(data) {
+  return request(BINDINGINIT, METHOD.GET, data);
+}
+
 // 提交绑定
 export async function commitBinding(data) {
-  return request(BINDINGCOMMIT, METHOD.GET, data);
+  return request(BINDINGCOMMIT, METHOD.POST, data);
 }

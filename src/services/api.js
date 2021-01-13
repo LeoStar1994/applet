@@ -12,9 +12,9 @@ module.exports = {
   LOGINVERIFYCODE: `${BASE_URL}/wxapplet-admin/api/user/login/verifyCode/image`, // 图形验证码
   LOGINSMSCODE: `${BASE_URL}/wxapplet-admin/api/user/login/verifyCode/sms`, // 短信验证码
   LOGINBYPHONE: `${BASE_URL}/wxapplet-admin/api/user/login/goMobile`, // 手机登录
-  FOEGETPASSWORD: `${BASE_URL}/login/forgetPassword/validMobile`, // 找回密码验证手机验证码
-  FOEGETPASSWORDCODE: `${BASE_URL}/login/forgetPassword`, // 忘记密码获取手机验证码
-  RESETPASSWORD: `${BASE_URL}/login/forgetPassword/modPassword`, // 重置修改密码
+  FOEGETPASSWORD: `http://devihmg.mocaptech.com:8081/login/forgetPassword/validMobile`, // 找回密码验证手机验证码
+  FOEGETPASSWORDCODE: `http://devihmg.mocaptech.com:8081/login/forgetPassword`, // 忘记密码获取手机验证码
+  RESETPASSWORD: `http://devihmg.mocaptech.com:8081/login/forgetPassword/modPassword`, // 重置修改密码
 
   /* 版本控制 */
 
@@ -24,7 +24,7 @@ module.exports = {
   VERSIONAUDIT: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeVersion/submitAudit`, // 提交审核
   VERSIONAUDITBACK: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeVersion/undocodeaudit`, // 审核撤回
   VERSIONCOMMITCODE: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeVersion/commitCode`, // 上传代码
-  VERSIONNOTICE: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeVersion/commitCode`, // 通知发布
+  VERSIONNOTICE: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeVersion/msgUpdate`, // 通知发布
   CODETEMPLATE: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeTemplate/query`,
   TESTQRCODE: `${BASE_URL}/wxapplet-admin/api/miniProgram/tester/getQrcode`, // 体验二维码
   BINDTESTER: `${BASE_URL}/wxapplet-admin/api/miniProgram/tester/bindTester`, // 绑定体验者
@@ -33,11 +33,12 @@ module.exports = {
   /* 绑定用户 */
 
   BINDINGTABLEDATA: `${BASE_URL}/wxapplet-admin/api/miniProgram/bindUser/query`, // table查询
+  BINDINGINIT: `${BASE_URL}/wxapplet-admin/api/miniProgram/bindUser/home`, // table查询
   BINDINGCOMMIT: `${BASE_URL}/wxapplet-admin/api/miniProgram/bindUser/bindBbsUser`, // 提交绑定
 
   /* 小程序列表 */
 
-  APPLETLISTTABLEDATA: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeVersion/query`, // table查询
+  APPLETLISTTABLEDATA: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/query`, // table查询
   APPLETROLES: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/getRoles`, // 权限集列表
   APPLETADDAUTH: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/getAuthPageUrl`, // 获取新增小程序授权页面
   APPLETUNBIND: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/unbind`, // 解绑

@@ -2,56 +2,37 @@
  * @Description: 小程序管理 / 代码模板列表.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-08 17:15:19
+ * @LastEditTime: 2021-01-13 10:19:24
  * @LastEditors: Leo
 -->
 <template>
   <div class="codeTemplate-page">
     <a-card class="content-contain"
             :style="`min-height: ${pageMinHeight}px`">
-      <!-- search -->
-      <h3>已绑定小程序</h3>
       <div class="mb-18 mt-10">
-        <a-button @click="addNewAuthor"
+        <a-button @click="syncCodeTemplate"
                   class="mr-10"
-                  type="primary">新增</a-button>
-        <a-button>批量操作</a-button>
+                  type="primary">同步代码模板列表</a-button>
       </div>
       <!-- table -->
       <standard-table :columns="columns"
                       :dataSource="dataSource"
                       :loading="tableLoading"
-                      :pagination="pagination"
-                      rowKey="id"
-                      @change="handleTableChange">
-        <!-- 图标icon -->
-        <div slot="appletIcon"
-             slot-scope="{text}">
-          <img :src="text"
-               class="w26 h26"
-               alt="图标">
-        </div>
-        <!-- 二维码 -->
-        <div slot="qrcode"
-             slot-scope="{text}">
-          <img :src="text"
-               class="w26 h26"
-               alt="二维码">
-        </div>
-        <div slot="action"
-             slot-scope="{record}">
-          <a style="margin-right: 12px"
-             @click="chooseAccount(record)">选择用户</a>
-        </div>
+                      rowKey="templateId">
       </standard-table>
     </a-card>
+
+    <!-- loading -->
+    <transition name="el-fade-in">
+      <loading ref="loading"></loading>
+    </transition>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
 import StandardTable from "@/components/table/StandardTable";
-import { getTableData } from "@/services/codeTemplate";
+import { getTableData, syncTemplate } from "@/services/codeTemplate";
 // table columns data
 const columns = [
   {
@@ -70,10 +51,6 @@ const columns = [
     title: "模板版本号",
     dataIndex: "userVersion",
   },
-  {
-    title: "操作",
-    scopedSlots: { customRender: "action" },
-  },
 ];
 
 export default {
@@ -85,15 +62,6 @@ export default {
       tableLoading: false,
       columns: columns,
       dataSource: [],
-      pagination: {
-        pageSize: 10,
-        pageNo: 1,
-        total: 0,
-        pageSizeOptions: ["10", "15", "20"],
-        showSizeChanger: true,
-        showQuickJumper: true,
-        showTotal: (total) => `共 ${total} 条数据`,
-      },
     };
   },
   computed: {
@@ -104,79 +72,49 @@ export default {
     },
   },
   created() {
-    // this.searchTableData();
+    this.searchTableData();
   },
   methods: {
-    // 新增
-    addNewAuthor() {
-      window.open("http://www.baidu.com");
-    },
-
-    // 选择用户
-    chooseAccount(rowData) {
-      console.log(rowData);
-      // const data = {
-      //   appid: rowData.appid,
-      //   userIdentify: rowData.userIdentify,
-      // };
-      // commitBinding(data).then((res) => {
-      //   const result = res.data;
-      //   if (result.code === 0) {
-      //     console.log(result);
-      //   } else {
-      //     this.$message.error(result.desc);
-      //   }
-      // });
+    // 同步代码模板列表
+    syncCodeTemplate() {
+      this.$refs.loading.openLoading("正在同步，请稍后。。");
+      syncTemplate()
+        .then((res) => {
+          this.$refs.loading.closeLoading();
+          const result = res.data;
+          if (result.code === 0) {
+            this.$message.success(result.desc);
+          } else {
+            this.$message.error(result.desc);
+          }
+        })
+        .catch(() => {
+          this.$refs.loading.closeLoading();
+        });
     },
 
     // 列表查询
     searchTableData() {
-      const data = {
-        pageNo: this.pagination.pageNo,
-        pageSize: this.pagination.pageSize,
-      };
       this.tableLoading = true;
-      getTableData(data).then((res) => {
-        const result = res.data;
-        if (result.code === 0) {
-          this.dataSource = result.data;
-          this.pagination.total = result.total;
-        } else {
-          this.$message.error(result.desc);
-        }
-        this.tableLoading = false;
-      });
-    },
-
-    handleTableChange(pagination) {
-      let { current, pageSize } = pagination;
-      this.pagination.pageSize = pageSize;
-      this.pagination.pageNo = current;
-      this.searchTableData();
-    },
-
-    // 重置
-    reset() {
-      this.dataSource = [];
+      getTableData()
+        .then((res) => {
+          const result = res.data;
+          if (result.code === 0) {
+            this.dataSource = result.data;
+          } else {
+            this.$message.error(result.desc);
+          }
+          this.tableLoading = false;
+        })
+        .catch(() => {
+          this.tableLoading = false;
+        });
     },
   },
-  watch: {
-    // $route(to) {
-    //   if (to.path.includes("binding")) {
-    //     this.searchTableData();
-    //   }
-    // },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.searchTableData();
+    });
   },
 };
 </script>
-
-<style lang="less" scoped>
-.codeTemplate-page {
-  h3 {
-    border-bottom: 3px solid #fafafa;
-    height: 40px;
-    line-height: 40px;
-    font-size: 18px;
-  }
-}
-</style>

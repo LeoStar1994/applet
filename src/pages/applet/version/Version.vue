@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 版本控制.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-12 18:57:00
+ * @LastEditTime: 2021-01-13 17:03:47
  * @LastEditors: Leo
 -->
 <template>
@@ -109,18 +109,16 @@
                      @searchTableData="searchTableData"></CodeUploadModal>
 
     <!-- 体验二维码modal -->
-    <a-modal title="体验二维码"
-             width="500px"
-             :visible="visible"
-             :confirm-loading="confirmLoading"
-             centered
-             destroyOnClose
-             @ok="handleOk"
-             @cancel="handleCancel">
-      <img :src="QRCodeUrl"
-           width="440px"
-           alt="二维码">
-    </a-modal>
+    <QRCode ref="QRCodeModal"
+            :title="QRTitle"
+            :QRCodeUrl="QRCodeUrl"></QRCode>
+
+    <!-- 查看失败原因 -->
+    <ViewFailReason ref="failReason"
+                    :title="failReasonTitle"
+                    :failReasonImgList="failReasonImgList"
+                    :failReason="failReason"></ViewFailReason>
+
     <!-- loading -->
     <transition name="el-fade-in">
       <loading ref="loading"></loading>
@@ -131,7 +129,9 @@
 <script>
 import { mapState } from "vuex";
 import StandardTable from "@/components/table/StandardTable";
+import QRCode from "@/components/qrcode/QRCode";
 import CodeUploadModal from "./CodeUploadModal";
+import ViewFailReason from "./ViewFailReason";
 import {
   getTableData,
   getCodeTemplateList,
@@ -202,13 +202,16 @@ const columns = [
 
 export default {
   name: "Version",
-  components: { StandardTable, CodeUploadModal },
+  components: { StandardTable, CodeUploadModal, QRCode, ViewFailReason },
   i18n: require("./i18n"),
   data() {
     return {
+      QRTitle: "体验二维码",
+      failReasonTitle: "查看失败原因",
+      failReason: "",
+      failReasonImgList: [],
       tableLoading: false,
       columns: columns,
-      visible: false,
       confirmLoading: false,
       isShowButtonMsgUpdate: true, // 通知发布按钮
       isShowButtonSubmitAudit: true, // 提交审核按钮
@@ -260,9 +263,9 @@ export default {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
-            // this.$message.success(result.desc);
-            // this.searchTableData();
-            console.log(result);
+            this.failReason = result.data.failReason;
+            this.failReasonImgList = result.data.failScreenShot;
+            this.$refs.failReason.openAlarm();
           } else {
             this.$message.error(result.desc);
           }
@@ -326,7 +329,6 @@ export default {
             this.$message.success(result.desc);
             this.searchTableData();
           } else {
-            console.log(result);
             this.$message.error(result.desc);
           }
         })
@@ -364,7 +366,7 @@ export default {
         const result = res.data;
         if (result.code === 0) {
           this.QRCodeUrl = result.data;
-          this.visible = true;
+          this.$refs.QRCodeModal.openQRCode();
         } else {
           this.$message.error(result.desc);
         }
@@ -407,16 +409,6 @@ export default {
         .catch(() => {
           this.$refs.loading.closeLoading();
         });
-    },
-
-    async handleOk() {
-      this.confirmLoading = true;
-      setTimeout(() => {
-        this.confirmLoading = false;
-      }, 2000);
-    },
-    handleCancel() {
-      this.visible = false;
     },
 
     // 列表查询

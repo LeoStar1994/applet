@@ -38,9 +38,9 @@ Mock.mock(`${process.env.VUE_APP_API_BASE_URL}/routes`, "get", () => {
               //    breadcrumb: ['首页', '演示页']     //重写页面面包屑
               //   }
               // }
+              "appletList",
               "bindingUser",
               "version",
-              "appletList",
               "codeTemplate",
             ],
           },

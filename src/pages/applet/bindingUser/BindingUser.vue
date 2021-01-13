@@ -2,28 +2,18 @@
  * @Description: 小程序管理 / 绑定用户.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-08 15:51:00
+ * @LastEditTime: 2021-01-13 14:23:44
  * @LastEditors: Leo
 -->
 <template>
   <div class="bindingUser-page">
     <a-card class="content-contain"
             :style="`min-height: ${pageMinHeight}px`">
-      <!-- search -->
-      <h3>已绑定小程序</h3>
-      <div class="mb-18 mt-10">
-        <a-button @click="addNewAuthor"
-                  class="mr-10"
-                  type="primary">新增</a-button>
-        <a-button>批量操作</a-button>
-      </div>
       <!-- table -->
       <standard-table :columns="columns"
                       :dataSource="dataSource"
                       :loading="tableLoading"
-                      :pagination="pagination"
-                      rowKey="id"
-                      @change="handleTableChange">
+                      rowKey="appid">
         <!-- 图标icon -->
         <div slot="appletIcon"
              slot-scope="{text}">
@@ -35,23 +25,36 @@
         <div slot="qrcode"
              slot-scope="{text}">
           <img :src="text"
-               class="w26 h26"
+               class="w26 h26 cursor-pointer"
+               @click="viewQRCode(text)"
                alt="二维码">
         </div>
         <div slot="action"
              slot-scope="{record}">
           <a style="margin-right: 12px"
-             @click="chooseAccount(record)">选择用户</a>
+             @click="chooseAccount(record.appid)">选择用户</a>
         </div>
       </standard-table>
     </a-card>
+
+    <!-- 二维码弹框放大 -->
+    <QRCode ref="QRCodeModal"
+            :title="QRTitle"
+            :QRCodeUrl="QRCodeUrl"></QRCode>
+
+    <!-- 选择用户弹框 -->
+    <ChooseUser ref="chooseUser"
+                :userIdentifyList="userIdentifyList"
+                @searchTableData="searchTableData"></ChooseUser>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
 import StandardTable from "@/components/table/StandardTable";
-import { getTableData, commitBinding } from "@/services/bindingUser";
+import QRCode from "@/components/qrcode/QRCode";
+import ChooseUser from "./ChooseUser";
+import { getTableData, initData } from "@/services/bindingUser";
 // table columns data
 const columns = [
   {
@@ -96,22 +99,16 @@ const columns = [
 
 export default {
   name: "bindingUser",
-  components: { StandardTable },
+  components: { StandardTable, QRCode, ChooseUser },
   i18n: require("./i18n"),
   data() {
     return {
       tableLoading: false,
       columns: columns,
       dataSource: [],
-      pagination: {
-        pageSize: 10,
-        pageNo: 1,
-        total: 0,
-        pageSizeOptions: ["10", "15", "20"],
-        showSizeChanger: true,
-        showQuickJumper: true,
-        showTotal: (total) => `共 ${total} 条数据`,
-      },
+      userIdentifyList: [],
+      QRTitle: "查看二维码",
+      QRCodeUrl: "",
     };
   },
   computed: {
@@ -122,78 +119,55 @@ export default {
     },
   },
   created() {
-    // this.searchTableData();
+    this.getInitData();
   },
   methods: {
     // 新增
-    addNewAuthor() {
-      window.open("http://www.baidu.com");
-    },
-
-    // 选择用户
-    chooseAccount(rowData) {
-      const data = {
-        appid: rowData.appid,
-        userIdentify: rowData.userIdentify,
-      };
-      commitBinding(data).then((res) => {
+    getInitData() {
+      initData().then((res) => {
         const result = res.data;
         if (result.code === 0) {
-          console.log(result);
+          this.userIdentifyList = result.data.bssUserModel;
+          this.dataSource = result.data.ipage.records;
         } else {
           this.$message.error(result.desc);
         }
       });
+    },
+
+    // 查看二维码
+    viewQRCode(QRCodeUrl) {
+      this.QRCodeUrl = QRCodeUrl;
+      this.$refs.QRCodeModal.openQRCode();
+    },
+
+    // 选择用户
+    chooseAccount(appid) {
+      this.$refs.chooseUser.setOpenType(appid);
     },
 
     // 列表查询
     searchTableData() {
-      const data = {
-        pageNo: this.pagination.pageNo,
-        pageSize: this.pagination.pageSize,
-      };
       this.tableLoading = true;
-      getTableData(data).then((res) => {
-        const result = res.data;
-        if (result.code === 0) {
-          this.dataSource = result.data;
-          this.pagination.total = result.total;
-        } else {
-          this.$message.error(result.desc);
-        }
-        this.tableLoading = false;
-      });
-    },
-
-    handleTableChange(pagination) {
-      let { current, pageSize } = pagination;
-      this.pagination.pageSize = pageSize;
-      this.pagination.pageNo = current;
-      this.searchTableData();
-    },
-
-    // 重置
-    reset() {
-      this.dataSource = [];
+      getTableData()
+        .then((res) => {
+          const result = res.data;
+          if (result.code === 0) {
+            this.dataSource = result.data.records;
+          } else {
+            this.$message.error(result.desc);
+          }
+          this.tableLoading = false;
+        })
+        .catch(() => {
+          this.tableLoading = false;
+        });
     },
   },
-  watch: {
-    // $route(to) {
-    //   if (to.path.includes("binding")) {
-    //     this.searchTableData();
-    //   }
-    // },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.searchTableData();
+    });
   },
 };
 </script>
-
-<style lang="less" scoped>
-.bindingUser-page {
-  h3 {
-    border-bottom: 3px solid #fafafa;
-    height: 40px;
-    line-height: 40px;
-    font-size: 18px;
-  }
-}
-</style>

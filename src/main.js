@@ -5,6 +5,7 @@ import "./theme/index.less";
 import Antd from "ant-design-vue";
 import Viser from "viser-vue";
 import "@/mock";
+import Qs from "qs";
 import store from "./store";
 import "animate.css/source/animate.css";
 import Plugins from "@/plugins";
@@ -15,6 +16,7 @@ import Loading from "./components/loading/Loading.vue";
 import { isEmpty, isRihgtPhone } from "@/utils/util";
 Vue.prototype.$isEmpty = isEmpty;
 Vue.prototype.$isRihgtPhone = isRihgtPhone;
+Vue.prototype.$qs = Qs;
 
 const router = initRouter(store.state.setting.asyncRoutes);
 const i18n = initI18n("CN", "US");

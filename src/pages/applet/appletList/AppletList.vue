@@ -1,29 +1,25 @@
 <!--
- * @Description: 小程序管理 / 小程序列表管理.
+ * @Description: 小程序管理 / 小程序列表.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-08 17:00:03
+ * @LastEditTime: 2021-01-13 17:00:57
  * @LastEditors: Leo
 -->
 <template>
   <div class="appletList-page">
     <a-card class="content-contain"
             :style="`min-height: ${pageMinHeight}px`">
-      <!-- search -->
       <h3>已绑定小程序</h3>
       <div class="mb-18 mt-10">
-        <a-button @click="addNewAuthor"
+        <a-button @click="addApplet"
                   class="mr-10"
                   type="primary">新增</a-button>
-        <a-button>批量操作</a-button>
       </div>
       <!-- table -->
       <standard-table :columns="columns"
                       :dataSource="dataSource"
                       :loading="tableLoading"
-                      :pagination="pagination"
-                      rowKey="id"
-                      @change="handleTableChange">
+                      rowKey="appid">
         <!-- 图标icon -->
         <div slot="appletIcon"
              slot-scope="{text}">
@@ -35,29 +31,48 @@
         <div slot="qrcode"
              slot-scope="{text}">
           <img :src="text"
-               class="w26 h26"
+               class="w26 h26 cursor-pointer"
+               @click="viewQRCode(text)"
                alt="二维码">
         </div>
         <div slot="action"
              slot-scope="{record}">
-          <a style="margin-right: 12px"
-             @click="chooseAccount(record)">选择用户</a>
+          <a class="mr-12"
+             @click="openAuthorList(record.appid)">权限集列表</a>
+          <a class="text-red mr-12"
+             @click="unbind(record.appid)">解绑</a>
         </div>
       </standard-table>
     </a-card>
+
+    <!-- 二维码弹框放大 -->
+    <QRCode ref="QRCodeModal"
+            :title="QRTitle"
+            :QRCodeUrl="QRCodeUrl"></QRCode>
+
+    <!-- 权限集列表 -->
+    <RolesList ref="rolesList"
+               :appletRolesList="appletRolesList"></RolesList>
+    <!-- loading -->
+    <transition name="el-fade-in">
+      <loading ref="loading"></loading>
+    </transition>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
 import StandardTable from "@/components/table/StandardTable";
-import { getTableData } from "@/services/appletList";
+import QRCode from "@/components/qrcode/QRCode";
+import RolesList from "./RolesList";
+import {
+  getTableData,
+  appletRoles,
+  appletAuthPage,
+  appletUnbind,
+} from "@/services/appletList";
 // table columns data
 const columns = [
-  {
-    title: "APPID",
-    dataIndex: "appid",
-  },
   {
     title: "图标",
     dataIndex: "headImg",
@@ -68,8 +83,8 @@ const columns = [
     dataIndex: "nickName",
   },
   {
-    title: "主体名称",
-    dataIndex: "principalName",
+    title: "功能介绍",
+    dataIndex: "signature",
   },
   {
     title: "小程序二维码",
@@ -77,16 +92,16 @@ const columns = [
     scopedSlots: { customRender: "qrcode" },
   },
   {
-    title: "功能介绍",
-    dataIndex: "signature",
+    title: "主体名称",
+    dataIndex: "principalName",
   },
   {
-    title: "用户",
-    dataIndex: "userName",
+    title: "服务类目",
+    dataIndex: "categories",
   },
   {
-    title: "账号",
-    dataIndex: "userAccount",
+    title: "授权时间",
+    dataIndex: "authorizerTime",
   },
   {
     title: "操作",
@@ -96,22 +111,18 @@ const columns = [
 
 export default {
   name: "AppletList",
-  components: { StandardTable },
+  components: { StandardTable, QRCode, RolesList },
   i18n: require("./i18n"),
   data() {
     return {
       tableLoading: false,
       columns: columns,
+      QRTitle: "查看二维码",
+      QRCodeUrl: "",
       dataSource: [],
-      pagination: {
-        pageSize: 10,
-        pageNo: 1,
-        total: 0,
-        pageSizeOptions: ["10", "15", "20"],
-        showSizeChanger: true,
-        showQuickJumper: true,
-        showTotal: (total) => `共 ${total} 条数据`,
-      },
+      appletRolesList: [],
+      timer: null,
+      rtn: null,
     };
   },
   computed: {
@@ -122,68 +133,96 @@ export default {
     },
   },
   created() {
-    // this.searchTableData();
+    this.searchTableData();
   },
   methods: {
     // 新增
-    addNewAuthor() {
-      window.open("http://www.baidu.com");
+    addApplet() {
+      appletAuthPage().then((res) => {
+        const result = res.data;
+        if (result.code === 0) {
+          this.rtn = window.open(result.data.authPageUrl);
+          this.timer = setInterval(this.checkPageClose, 1000);
+        } else {
+          this.$message.error(result.desc);
+        }
+      });
     },
 
-    // 选择用户
-    chooseAccount(rowData) {
-      console.log(rowData);
-      // const data = {
-      //   appid: rowData.appid,
-      //   userIdentify: rowData.userIdentify,
-      // };
-      // commitBinding(data).then((res) => {
-      //   const result = res.data;
-      //   if (result.code === 0) {
-      //     console.log(result);
-      //   } else {
-      //     this.$message.error(result.desc);
-      //   }
-      // });
+    checkPageClose() {
+      if (this.rtn != null && this.rtn.closed) {
+        clearInterval(this.timer);
+        this.timer = null;
+        this.rtn = null;
+        this.searchTableData();
+      }
+    },
+
+    // 查看二维码
+    viewQRCode(QRCodeUrl) {
+      this.QRCodeUrl = QRCodeUrl;
+      this.$refs.QRCodeModal.openQRCode();
+    },
+
+    // 权限集列表
+    openAuthorList(appid) {
+      this.$refs.loading.openLoading("数据查询中，请稍后。。");
+      appletRoles({ appid })
+        .then((res) => {
+          this.$refs.loading.closeLoading();
+          const result = res.data;
+          if (result.code === 0) {
+            this.appletRolesList = result.data;
+            this.$refs.rolesList.setOpenType();
+          } else {
+            this.$message.error(result.desc);
+          }
+          this.tableLoading = false;
+        })
+        .catch(() => {
+          this.$refs.loading.closeLoading();
+        });
+    },
+
+    // 解绑
+    unbind(appid) {
+      const data = this.$qs.stringify({ appid });
+      this.$refs.loading.openLoading("操作进行中，请稍后。。");
+      appletUnbind(data)
+        .then((res) => {
+          this.$refs.loading.closeLoading();
+          const result = res.data;
+          if (result.code === 0) {
+            this.$message.success(result.desc);
+            this.searchTableData();
+          } else {
+            this.$message.error(result.desc);
+          }
+          this.tableLoading = false;
+        })
+        .catch(() => {
+          this.$refs.loading.closeLoading();
+        });
     },
 
     // 列表查询
     searchTableData() {
-      const data = {
-        pageNo: this.pagination.pageNo,
-        pageSize: this.pagination.pageSize,
-      };
       this.tableLoading = true;
-      getTableData(data).then((res) => {
+      getTableData().then((res) => {
         const result = res.data;
         if (result.code === 0) {
-          this.dataSource = result.data;
-          this.pagination.total = result.total;
+          this.dataSource = result.data.records;
         } else {
           this.$message.error(result.desc);
         }
         this.tableLoading = false;
       });
     },
-
-    handleTableChange(pagination) {
-      let { current, pageSize } = pagination;
-      this.pagination.pageSize = pageSize;
-      this.pagination.pageNo = current;
-      this.searchTableData();
-    },
-
-    // 重置
-    reset() {
-      this.dataSource = [];
-    },
   },
-  watch: {
-    // $route(to) {
-    //   if (to.path.includes("binding")) {
-    //     this.searchTableData();
-    //   }
-    // },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.searchTableData();
+    });
   },
 };
 </script>

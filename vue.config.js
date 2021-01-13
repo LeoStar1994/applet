@@ -34,6 +34,7 @@ const assetsCDN = {
 };
 
 module.exports = {
+  lintOnSave: false,
   // devServer: {
   //   proxy: {
   //     "/api": {
