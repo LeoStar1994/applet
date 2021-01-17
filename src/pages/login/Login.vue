@@ -39,7 +39,7 @@
               <!-- 账户名 -->
               <a-input autocomplete="autocomplete"
                        size="default"
-                       :maxLength="20"
+                       :maxLength="30"
                        placeholder="请输入您的账号"
                        v-decorator="['account', {rules: [{ required: true, whitespace: true, }]}]">
                 <a-icon slot="prefix"
@@ -51,12 +51,19 @@
             <a-form-item>
               <a-input size="default"
                        placeholder="请输入密码"
-                       :maxLength="20"
+                       :maxLength="30"
                        autocomplete="autocomplete"
-                       type="password"
+                       :type="passwordType"
                        v-decorator="['password', {rules: [{ required: true, message: '请输入密码', whitespace: true}]}]">
                 <a-icon slot="prefix"
                         type="lock" />
+                <a-tooltip slot="suffix"
+                           title="查看密码">
+                  <a-icon type="eye"
+                          v-if="form.getFieldValue('password')"
+                          @click="passwordType = 'text'"
+                          style="color: rgba(0,0,0,.45)" />
+                </a-tooltip>
               </a-input>
             </a-form-item>
             <!-- 图形验证码 -->
@@ -91,7 +98,7 @@
             <a-form-item>
               <a-input size="default"
                        placeholder="请输入手机号"
-                       :maxLength="13"
+                       :maxLength="30"
                        v-decorator="['mobile', {rules: [{ required: true,  whitespace: true,  validator: handleCheckMobile,}]}]">
                 <a-icon slot="prefix"
                         type="mobile" />
@@ -163,6 +170,7 @@ import {
   SMSCode,
   loginByPhone,
   getRoutesConfig,
+  getHomeInitData
 } from "@/services/user";
 import { setAuthorization } from "@/utils/request";
 import { loadRoutes } from "@/utils/routerUtil";
@@ -176,35 +184,35 @@ const userInfo = {
     CN: "前端工程师 | 蚂蚁金服-计算服务事业群-VUE平台",
     HK: "前端工程師 | 螞蟻金服-計算服務事業群-VUE平台",
     US:
-      "Front-end engineer | Ant Financial - Computing services business group - VUE platform",
-  },
+      "Front-end engineer | Ant Financial - Computing services business group - VUE platform"
+  }
 };
 const timeList = [
   {
     CN: "早上好",
     HK: "早晨啊",
-    US: "Good morning",
+    US: "Good morning"
   },
   {
     CN: "上午好",
     HK: "上午好",
-    US: "Good morning",
+    US: "Good morning"
   },
   {
     CN: "中午好",
     HK: "中午好",
-    US: "Good afternoon",
+    US: "Good afternoon"
   },
   {
     CN: "下午好",
     HK: "下午好",
-    US: "Good afternoon",
+    US: "Good afternoon"
   },
   {
     CN: "晚上好",
     HK: "晚上好",
-    US: "Good evening",
-  },
+    US: "Good evening"
+  }
 ];
 
 export default {
@@ -215,6 +223,7 @@ export default {
       logging: false,
       error: "",
       errorByPhone: "",
+      passwordType: "password",
       form: this.$form.createForm(this),
       form1: this.$form.createForm(this),
       currentTabKey: "commonLogin",
@@ -222,7 +231,7 @@ export default {
       countDownSceonds: 60,
       timer: null,
       verifyCodeImgUrl: null,
-      verifyCodeToken: null,
+      verifyCodeToken: null
     };
   },
   created() {
@@ -260,6 +269,7 @@ export default {
       if (activeKey === "commonLogin") {
         this.form.resetFields();
         this.error = "";
+        this.passwordType = "password";
       } else {
         this.form1.resetFields();
         this.errorByPhone = "";
@@ -289,7 +299,7 @@ export default {
 
     // 获取图形验证码
     fetchVerifyCode() {
-      verifyCode().then((res) => {
+      verifyCode().then(res => {
         const result = res.data;
         if (result.code === 0) {
           this.verifyCodeImgUrl = result.data.vpngBase64;
@@ -312,13 +322,13 @@ export default {
     // 账户密码点击登录
     onSubmit(e) {
       e.preventDefault();
-      this.form.validateFields((err) => {
+      this.form.validateFields(err => {
         if (!err) {
           this.logging = true;
           const allValues = this.form.getFieldsValue();
           const data = {
             ...allValues,
-            verifyCodeToken: this.verifyCodeToken,
+            verifyCodeToken: this.verifyCodeToken
           };
           login(data)
             .then(this.afterLogin)
@@ -336,7 +346,7 @@ export default {
         ...res.data,
         expireAt: new Date(new Date(new Date().getTime() + 30 * 60 * 1000)),
         user: { ...userInfo },
-        message: this.timeFix().CN + "，欢迎回来",
+        message: this.timeFix().CN + "，欢迎回来"
       };
       if (loginRes.code == 0) {
         // const { user, permissions, roles } = loginRes.data;
@@ -346,12 +356,20 @@ export default {
         // 设置token认证信息
         setAuthorization({
           token: loginRes.data,
-          expireAt: new Date(loginRes.expireAt),
+          expireAt: new Date(loginRes.expireAt)
+        });
+        getHomeInitData().then(res => {
+          const result = res.data;
+          if (result.code === 0) {
+            loginRes.user.name = result.data.account;
+          } else {
+            this.$message.error(result.desc);
+          }
         });
         // 获取路由配置
-        getRoutesConfig().then((result) => {
+        getRoutesConfig().then(result => {
           const routesConfig = result.data.data.menuTree;
-          loginRes.user.name = result.data.data.account;
+          // loginRes.user.name = result.data.data.account;
           this.setUser(loginRes.user); // 设置user信息
           loadRoutes(routesConfig);
           this.$router.push("/welcome"); // 成功登录页跳转首页
@@ -369,7 +387,7 @@ export default {
     // 手机号登录
     onSubmitByPhone(e) {
       e.preventDefault();
-      this.form1.validateFields((err) => {
+      this.form1.validateFields(err => {
         if (!err) {
           this.logging = true;
           const allValues = this.form1.getFieldsValue();
@@ -392,7 +410,7 @@ export default {
       }, 1000);
       const mobile = this.form1.getFieldValue("mobile");
       // ajax
-      SMSCode({ mobile }).then((res) => {
+      SMSCode({ mobile }).then(res => {
         const result = res.data;
         if (result.code === 0) {
           this.$message.success("短信验证码已发送，请注意查收");
@@ -405,8 +423,8 @@ export default {
     // 忘记密码
     forgetPassword() {
       this.$refs.forgetPassword.visible = true;
-    },
-  },
+    }
+  }
 };
 </script>
 

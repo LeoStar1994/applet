@@ -10,13 +10,13 @@
     </div>
     <a-menu :class="['avatar-menu']"
             slot="overlay">
-      <a-menu-item @click="to404Page">
+      <!-- <a-menu-item @click="to404Page">
         <a-icon type="user" />
         <span>个人中心</span>
-      </a-menu-item>
-      <a-menu-item @click="to404Page">
+      </a-menu-item> -->
+      <a-menu-item @click="auditPassword">
         <a-icon type="setting" />
-        <span>设置</span>
+        <span>修改密码</span>
       </a-menu-item>
       <a-menu-divider />
       <a-menu-item @click="logout">
@@ -35,7 +35,7 @@ import { logout } from "@/services/user";
 export default {
   name: "HeaderAvatar",
   computed: {
-    ...mapGetters("account", ["user"]),
+    ...mapGetters("account", ["user"])
   },
   methods: {
     logout() {
@@ -45,7 +45,10 @@ export default {
     to404Page() {
       this.$router.push("/404");
     },
-  },
+    auditPassword() {
+      this.$router.push("/auditPassword");
+    }
+  }
 };
 </script>
 

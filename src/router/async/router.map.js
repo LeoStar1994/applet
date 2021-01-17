@@ -2,7 +2,7 @@
 const view = {
   tabs: () => import("@/layouts/tabs"),
   blank: () => import("@/layouts/BlankView"),
-  page: () => import("@/layouts/PageView"),
+  page: () => import("@/layouts/PageView")
 };
 
 // 路由组件注册
@@ -27,7 +27,7 @@ const routerMap = {
   login: {
     authority: "*",
     path: "/login",
-    component: () => import("@/pages/login"),
+    component: () => import("@/pages/login")
   },
 
   // 异常页
@@ -35,26 +35,26 @@ const routerMap = {
     name: "异常页",
     icon: "warning",
     invisible: true,
-    component: view.blank,
+    component: view.blank
   },
   exp403: {
     authority: "*",
     invisible: true,
     name: "exp403",
     path: "403",
-    component: () => import("@/pages/exception/403"),
+    component: () => import("@/pages/exception/403")
   },
   exp404: {
     name: "exp404",
     invisible: true,
     path: "404",
-    component: () => import("@/pages/exception/404"),
+    component: () => import("@/pages/exception/404")
   },
   exp500: {
     name: "exp500",
     invisible: true,
     path: "500",
-    component: () => import("@/pages/exception/500"),
+    component: () => import("@/pages/exception/500")
   },
 
   // root
@@ -62,13 +62,19 @@ const routerMap = {
     path: "/",
     name: "首页",
     redirect: "/login",
-    component: view.tabs,
+    component: view.tabs
   },
   welcome: {
     path: "/welcome",
     name: "欢迎页",
     invisible: true,
-    component: () => import("@/pages/welcome"),
+    component: () => import("@/pages/welcome")
+  },
+  auditPassword: {
+    path: "/auditPassword",
+    name: "修改密码",
+    invisible: true,
+    component: () => import("@/pages/auditPassword")
   },
 
   // 小程序管理
@@ -76,27 +82,27 @@ const routerMap = {
     path: "/appletManagement",
     name: "小程序管理",
     icon: "compass",
-    component: view.page,
+    component: view.page
   },
   bindingUser: {
     path: "/appletManagement/bindingUser",
     name: "绑定用户",
-    component: () => import("@/pages/applet/bindingUser"),
+    component: () => import("@/pages/applet/bindingUser")
   },
   version: {
     path: "/appletManagement/version",
     name: "版本控制",
-    component: () => import("@/pages/applet/version"),
+    component: () => import("@/pages/applet/version")
   },
   appletList: {
     path: "/appletManagement/appletList",
     name: "小程序列表",
-    component: () => import("@/pages/applet/appletList"),
+    component: () => import("@/pages/applet/appletList")
   },
   codeTemplate: {
     path: "/appletManagement/codeTemplate",
     name: "代码模板列表",
-    component: () => import("@/pages/applet/codeTemplate"),
-  },
+    component: () => import("@/pages/applet/codeTemplate")
+  }
 };
 export default routerMap;

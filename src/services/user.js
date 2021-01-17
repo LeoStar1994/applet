@@ -7,6 +7,8 @@ import {
   FOEGETPASSWORDCODE,
   FOEGETPASSWORD,
   RESETPASSWORD,
+  USERAUDITPASSWORD,
+  HOME
 } from "@/services/api";
 import { request, METHOD, removeAuthorization } from "@/utils/request";
 
@@ -45,6 +47,12 @@ export async function loginByPhone(data) {
  */
 export async function getRoutesConfig() {
   return request(ROUTES, METHOD.GET);
+  data;
+}
+
+// 获取主页用户名
+export async function getHomeInitData(data) {
+  return request(HOME, METHOD.POST, data);
 }
 
 // 忘记密码获取短信验证码
@@ -62,6 +70,11 @@ export async function resetPassword(data) {
   return request(RESETPASSWORD, METHOD.POST, data);
 }
 
+// 用户修改密码
+export async function aduitPassword(data) {
+  return request(USERAUDITPASSWORD, METHOD.POST, data);
+}
+
 /**
  * 退出登录
  */
@@ -75,5 +88,5 @@ export default {
   login,
   logout,
   loginByPhone,
-  getRoutesConfig,
+  getRoutesConfig
 };

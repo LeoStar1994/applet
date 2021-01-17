@@ -40,10 +40,10 @@
              @click="openCodeUpload(record.appid)">上传代码
           </a>
           <!-- 提交审核 -->
-          <a-popconfirm :title="`当前上传版本号：${record.nowUserVersion}，是否提交审核?`"
+          <a-popconfirm :title="`当前上传版本号：${record.testerUserVersion}，是否提交审核?`"
                         ok-text="确定"
                         cancel-text="取消"
-                        v-if="isShowButtonSubmitAudit"
+                        v-if="record.isShowButtonSubmitAudit"
                         style="margin-right:12px;"
                         @confirm="submitAudit(record.appid)"
                         @cancel="cancel">
@@ -52,7 +52,7 @@
           <!-- 审核撤回 -->
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        v-if="isShowButtonUndocodeAudit"
+                        v-if="record.isShowButtonUndocodeAudit"
                         style="margin-right:12px;"
                         @confirm="undocodeAudit(record.appid)"
                         @cancel="cancel">
@@ -65,7 +65,7 @@
           <!-- 通知发布 -->
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        v-if="isShowButtonMsgUpdate"
+                        v-if="record.isShowButtonMsgUpdate"
                         style="margin-right:12px;"
                         @confirm="noticeIssue(record.appid)"
                         @cancel="cancel">
@@ -77,7 +77,7 @@
           </a-popconfirm>
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        v-if="isShowButtonVersionRollback"
+                        v-if="record.isShowButtonVersionRollback"
                         style="margin-right:12px;"
                         @confirm="backLastVersion(record.appid)"
                         @cancel="cancel">
@@ -142,7 +142,7 @@ import {
   getQrcode,
   bindTester,
   unbindTester,
-  failReason,
+  failReason
 } from "@/services/version";
 // table columns data
 const columns = [
@@ -150,54 +150,54 @@ const columns = [
     title: "图标",
     dataIndex: "headImg",
     scopedSlots: { customRender: "appletIcon" },
-    width: "100px",
+    width: "100px"
   },
   {
     title: "小程序名称",
     dataIndex: "nickName",
-    width: "160px",
+    width: "160px"
   },
   {
     title: "上一个线上版本",
     dataIndex: "lastUserVersion",
-    width: "160px",
+    width: "160px"
   },
   {
     title: "当前版本号",
     dataIndex: "nowUserVersion",
-    width: "160px",
+    width: "160px"
   },
   {
     title: "当前体验版",
     dataIndex: "testerUserVersion",
-    width: "160px",
+    width: "160px"
   },
   {
     title: "提交审核版本号",
     dataIndex: "submitAuditUserVersion",
-    width: "160px",
+    width: "160px"
   },
   {
     title: "审核结果",
     dataIndex: "auditState",
     scopedSlots: { customRender: "auditResult" },
-    width: "160px",
+    width: "160px"
   },
   {
     title: "通知更新状态",
     dataIndex: "msgUpdateState",
-    width: "160px",
+    width: "160px"
   },
   {
     title: "操作",
     scopedSlots: { customRender: "action" },
-    width: "400px",
+    width: "400px"
   },
   {
     title: "体验者操作",
     scopedSlots: { customRender: "experienceAction" },
-    width: "360px",
-  },
+    width: "360px"
+  }
 ];
 
 export default {
@@ -213,10 +213,6 @@ export default {
       tableLoading: false,
       columns: columns,
       confirmLoading: false,
-      isShowButtonMsgUpdate: true, // 通知发布按钮
-      isShowButtonSubmitAudit: true, // 提交审核按钮
-      isShowButtonUndocodeAudit: true, // 审核撤回按钮
-      isShowButtonVersionRollback: true, // 版本回退按钮
       dataSource: [],
       labelCol: { span: 4 },
       wrapperCol: { span: 14, offset: 1 },
@@ -225,10 +221,10 @@ export default {
         1: "审核被拒绝",
         2: "审核中",
         3: "已撤回",
-        4: "审核延后",
+        4: "审核延后"
       },
       codeTemplateList: [], // 代码模板list
-      QRCodeUrl: "",
+      QRCodeUrl: ""
     };
   },
   computed: {
@@ -236,7 +232,7 @@ export default {
     // page header desc
     desc() {
       return this.$t("description");
-    },
+    }
   },
   created() {
     this.getTemplateList();
@@ -245,7 +241,7 @@ export default {
   methods: {
     // 获取代码模板list
     getTemplateList() {
-      getCodeTemplateList().then((res) => {
+      getCodeTemplateList().then(res => {
         const result = res.data;
         if (result.code === 0) {
           this.codeTemplateList = result.data;
@@ -259,7 +255,7 @@ export default {
     viewFileReason(appid) {
       this.$refs.loading.openLoading("正在查询，请稍后。。");
       failReason({ appid })
-        .then((res) => {
+        .then(res => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -284,7 +280,7 @@ export default {
     submitAudit(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       submitAudit({ appid })
-        .then((res) => {
+        .then(res => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -303,7 +299,7 @@ export default {
     undocodeAudit(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       backAudit({ appid })
-        .then((res) => {
+        .then(res => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -322,7 +318,7 @@ export default {
     noticeIssue(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       noticeIssueInfo({ appid })
-        .then((res) => {
+        .then(res => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -341,7 +337,7 @@ export default {
     backLastVersion(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       backVersion({ appid })
-        .then((res) => {
+        .then(res => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -362,7 +358,7 @@ export default {
 
     // 获取体验版二维码
     fetchExperienceQRCode(appid) {
-      getQrcode({ appid }).then((res) => {
+      getQrcode({ appid }).then(res => {
         const result = res.data;
         if (result.code === 0) {
           this.QRCodeUrl = result.data;
@@ -377,7 +373,7 @@ export default {
     bindingExperiencer(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       bindTester({ appid })
-        .then((res) => {
+        .then(res => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -396,7 +392,7 @@ export default {
     relieveExperiencer(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       unbindTester({ appid })
-        .then((res) => {
+        .then(res => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -414,34 +410,24 @@ export default {
     // 列表查询
     searchTableData() {
       this.tableLoading = true;
-      getTableData().then((res) => {
+      getTableData().then(res => {
         const result = res.data;
         if (result.code === 0) {
-          const {
-            records,
-            isShowButtonMsgUpdate,
-            isShowButtonSubmitAudit,
-            isShowButtonUndocodeAudit,
-            isShowButtonVersionRollback,
-          } = result.data;
+          const { records } = result.data;
           this.dataSource = records;
-          this.isShowButtonMsgUpdate = isShowButtonMsgUpdate; // 通知发布按钮
-          this.isShowButtonSubmitAudit = isShowButtonSubmitAudit; // 提交审核按钮
-          this.isShowButtonUndocodeAudit = isShowButtonUndocodeAudit; // 审核撤回按钮
-          this.isShowButtonVersionRollback = isShowButtonVersionRollback; // 版本回退按钮
         } else {
           this.$message.error(result.desc);
         }
         this.tableLoading = false;
       });
-    },
+    }
   },
 
   beforeRouteEnter(to, from, next) {
-    next((vm) => {
+    next(vm => {
       vm.searchTableData();
     });
-  },
+  }
 };
 </script>
 

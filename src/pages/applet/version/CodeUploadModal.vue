@@ -55,7 +55,7 @@
         <a-form-model-item prop="templateDesc"
                            label="模板描述">
           <a-input v-model="form.templateDesc"
-                   :maxLength="500"
+                   :maxLength="200"
                    disabled
                    placeholder="请输入模板描述"
                    allowClear
@@ -87,8 +87,8 @@ export default {
   props: {
     codeTemplateList: {
       type: Array,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
@@ -103,10 +103,10 @@ export default {
         ID: undefined,
         templateVersion: undefined,
         templateDesc: undefined,
-        addTime: undefined,
+        addTime: undefined
       },
       // 搜索项校验规则
-      rules: {},
+      rules: {}
     };
   },
   created() {},
@@ -118,7 +118,7 @@ export default {
 
     codeTemplateChange(templateId) {
       const chooseTemplate = this.codeTemplateList.find(
-        (item) => item.templateId === templateId
+        item => item.templateId === templateId
       );
       this.form.ID = templateId;
       this.form.templateVersion = chooseTemplate.userVersion;
@@ -133,14 +133,14 @@ export default {
     },
     // 保存
     onSubmit() {
-      this.$refs.ruleForm.validate((valid) => {
+      this.$refs.ruleForm.validate(valid => {
         if (valid) {
           const data = {
             appid: this.form.appid,
-            templateId: this.form.templateId,
+            templateId: this.form.templateId
           };
           this.$refs.loading.openLoading("操作进行中，请稍后。。");
-          commitCode(data).then((res) => {
+          commitCode(data).then(res => {
             this.$refs.loading.closeLoading();
             const result = res.data;
             if (result.code === 0) {
@@ -159,7 +159,7 @@ export default {
     handleCancel() {
       this.$refs.ruleForm.resetFields();
       this.visible = false;
-    },
-  },
+    }
+  }
 };
 </script>

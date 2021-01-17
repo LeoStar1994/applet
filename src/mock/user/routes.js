@@ -41,19 +41,22 @@ Mock.mock(`${process.env.VUE_APP_API_BASE_URL}/routes`, "get", () => {
               "appletList",
               "bindingUser",
               "version",
-              "codeTemplate",
-            ],
+              "codeTemplate"
+            ]
           },
           {
-            router: "welcome",
+            router: "welcome"
+          },
+          {
+            router: "auditPassword"
           },
           {
             router: "exception",
-            children: ["exp404", "exp403", "exp500"],
-          },
-        ],
-      },
-    ],
+            children: ["exp404", "exp403", "exp500"]
+          }
+        ]
+      }
+    ]
   };
   return result;
 });
