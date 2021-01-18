@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 版本控制.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-18 17:44:39
+ * @LastEditTime: 2021-01-18 23:11:35
  * @LastEditors: Leo
 -->
 <template>
@@ -13,7 +13,7 @@
       <standard-table :columns="columns"
                       :dataSource="dataSource"
                       :loading="tableLoading"
-                      :scroll="{x: 1500}"
+                      :scroll="{x: 1400}"
                       rowKey="appid">
         <div slot="appletIcon"
              slot-scope="{text}">
@@ -38,7 +38,7 @@
         <!-- 操作 -->
         <div slot="action"
              slot-scope="{record}">
-          <a-button class="mr-12"
+          <a-button class="mr-12 mb-6"
                     type="primary"
                     size="small"
                     @click="openCodeUpload(record.appid)">上传代码
@@ -47,7 +47,7 @@
           <a-popconfirm :title="`当前上传版本号：${record.testerUserVersion}，是否提交审核?`"
                         ok-text="确定"
                         cancel-text="取消"
-                        class="mr-12"
+                        class="mr-12 mb-6"
                         :disabled="!record.isShowButtonSubmitAudit"
                         @confirm="submitAudit(record.appid)"
                         @cancel="cancel">
@@ -58,7 +58,7 @@
           <!-- 审核撤回 -->
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        class="mr-12"
+                        class="mr-12 mb-6"
                         :disabled="!record.isShowButtonUndocodeAudit"
                         @confirm="undocodeAudit(record.appid)"
                         @cancel="cancel">
@@ -73,7 +73,7 @@
           <!-- 通知发布 -->
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        class="mr-12"
+                        class="mr-12 mb-6"
                         :disabled="!record.isShowButtonMsgUpdate"
                         @confirm="noticeIssue(record.appid)"
                         @cancel="cancel">
@@ -87,7 +87,7 @@
           </a-popconfirm>
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        class="mr-12"
+                        class="mr-12 mb-6"
                         :disabled="!record.isShowButtonVersionRollback"
                         @confirm="backLastVersion(record.appid)"
                         @cancel="cancel">
@@ -103,16 +103,16 @@
         <!-- 体验者操作 -->
         <div slot="experienceAction"
              slot-scope="{record}">
-          <a-button class="mr-12"
+          <a-button class="mr-12 mb-6"
                     size="small"
                     type="primary"
                     @click="fetchExperienceQRCode(record.appid)">获取体验版二维码
           </a-button>
-          <a-button class="mr-12"
+          <a-button class="mr-12 mb-6"
                     size="small"
                     type="primary"
                     @click="testerOperate(record.appid, 0)">绑定体验者</a-button>
-          <a-button class="mr-12"
+          <a-button class="mr-12 mb-6"
                     size="small"
                     type="primary"
                     @click="testerOperate(record.appid, 1)">解除体验者</a-button>
@@ -175,48 +175,48 @@ const columns = [
   {
     title: "小程序名称",
     dataIndex: "nickName",
-    width: "160px",
+    width: "120px",
   },
   {
     title: "上一个版本",
     dataIndex: "lastUserVersion",
-    width: "160px",
+    width: "120px",
   },
   {
     title: "当前版本号",
     dataIndex: "nowUserVersion",
-    width: "160px",
+    width: "120px",
   },
   {
-    title: "当前体验版",
+    title: "体验版",
     dataIndex: "testerUserVersion",
-    width: "160px",
+    width: "120px",
   },
   {
-    title: "提交审核版本号",
+    title: "审核中版本",
     dataIndex: "submitAuditUserVersion",
-    width: "160px",
+    width: "120px",
   },
   {
     title: "审核结果",
     dataIndex: "auditState",
     scopedSlots: { customRender: "auditResult" },
-    width: "160px",
+    width: "120px",
   },
   {
     title: "通知更新状态",
     dataIndex: "msgUpdateState",
-    width: "160px",
+    width: "120px",
   },
   {
     title: "操作",
     scopedSlots: { customRender: "action" },
-    width: "460px",
+    width: "200px",
   },
   {
     title: "体验者操作",
     scopedSlots: { customRender: "experienceAction" },
-    width: "400px",
+    width: "200px",
   },
 ];
 
