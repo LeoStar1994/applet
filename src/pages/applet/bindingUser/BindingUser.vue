@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 绑定用户.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-13 14:23:44
+ * @LastEditTime: 2021-01-18 17:58:30
  * @LastEditors: Leo
 -->
 <template>
@@ -31,8 +31,11 @@
         </div>
         <div slot="action"
              slot-scope="{record}">
-          <a style="margin-right: 12px"
-             @click="chooseAccount(record.appid)">选择用户</a>
+          <a-button class="mr-12"
+                    type="primary"
+                    size="small"
+                    :disabled="!record.isShowButtonBindUser"
+                    @click="chooseAccount(record.appid)">选择用户</a-button>
         </div>
       </standard-table>
     </a-card>
@@ -45,7 +48,7 @@
     <!-- 选择用户弹框 -->
     <ChooseUser ref="chooseUser"
                 :userIdentifyList="userIdentifyList"
-                @searchTableData="searchTableData"></ChooseUser>
+                @refreshTableData="searchTableData"></ChooseUser>
   </div>
 </template>
 
@@ -57,10 +60,10 @@ import ChooseUser from "./ChooseUser";
 import { getTableData, initData } from "@/services/bindingUser";
 // table columns data
 const columns = [
-  {
-    title: "APPID",
-    dataIndex: "appid",
-  },
+  // {
+  //   title: "APPID",
+  //   dataIndex: "appid",
+  // },
   {
     title: "图标",
     dataIndex: "headImg",

@@ -2,18 +2,20 @@
  * @Description: 版本控制查看失败原因
  * @Author: Leo
  * @Date: 2021-01-13 10:48:10
- * @LastEditTime: 2021-01-13 15:35:19
+ * @LastEditTime: 2021-01-18 12:43:50
  * @LastEditors: Leo
 -->
 <template>
   <a-modal :title="title"
            width="500px"
            :visible="visible"
-           :confirm-loading="confirmLoading"
            centered
            destroyOnClose
-           @ok="handleOk"
            @cancel="handleCancel">
+    <template slot="footer">
+      <a-button type="primary"
+                @click="handleCancel">关闭</a-button>
+    </template>
     <div style="overflow-y:auto; max-height:500px; padding: 0 10px; text-align:center;">
       <p v-html="failReason"
          class="text-left"></p>
@@ -47,19 +49,11 @@ export default {
   data() {
     return {
       visible: false,
-      confirmLoading: false,
     };
   },
   methods: {
     openAlarm() {
       this.visible = true;
-    },
-    handleOk() {
-      this.confirmLoading = true;
-      setTimeout(() => {
-        this.visible = false;
-        this.confirmLoading = false;
-      }, 1000);
     },
     handleCancel() {
       this.visible = false;

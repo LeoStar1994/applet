@@ -2,7 +2,7 @@
  * @Description: 权限集列表
  * @Author: Leo
  * @Date: 2020-12-29 17:00:45
- * @LastEditTime: 2021-01-13 15:34:58
+ * @LastEditTime: 2021-01-18 12:37:10
  * @LastEditors: Leo
 -->
 <template>
@@ -10,16 +10,18 @@
     <a-modal :title="pageTitle"
              width="800px"
              :visible="visible"
-             :confirm-loading="confirmLoading"
              centered
              destroyOnClose
-             @ok="handleOk"
              @cancel="handleCancel">
       <!-- table -->
       <standard-table :columns="columns"
                       :dataSource="appletRolesList"
                       rowKey="id">
       </standard-table>
+      <template slot="footer">
+        <a-button type="primary"
+                  @click="handleCancel">关闭</a-button>
+      </template>
     </a-modal>
 
     <!-- loading -->
@@ -65,7 +67,6 @@ export default {
       labelCol: { span: 5 },
       wrapperCol: { span: 16, offset: 1 },
       pageTitle: "权限集列表",
-      confirmLoading: false,
       columns: columns,
     };
   },
@@ -73,14 +74,6 @@ export default {
   methods: {
     setOpenType() {
       this.visible = true;
-    },
-
-    async handleOk() {
-      this.confirmLoading = true;
-      setTimeout(() => {
-        this.visible = false;
-        this.confirmLoading = false;
-      }, 1000);
     },
     handleCancel() {
       this.visible = false;

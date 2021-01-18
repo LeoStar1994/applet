@@ -2,7 +2,7 @@
  * @Description: 选择用户弹框
  * @Author: Leo
  * @Date: 2020-12-29 17:00:45
- * @LastEditTime: 2021-01-13 14:10:56
+ * @LastEditTime: 2021-01-18 15:50:51
  * @LastEditors: Leo
 -->
 <template>
@@ -103,6 +103,7 @@ export default {
               if (result.code === 0) {
                 this.$message.success(result.desc);
                 this.handleCancel();
+                this.$emit("refreshTableData");
               } else {
                 this.$message.error(result.desc);
               }

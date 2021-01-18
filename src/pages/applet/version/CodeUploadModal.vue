@@ -2,7 +2,7 @@
  * @Description: 上传代码弹框
  * @Author: Leo
  * @Date: 2020-12-29 17:00:45
- * @LastEditTime: 2021-01-12 18:04:30
+ * @LastEditTime: 2021-01-18 13:38:33
  * @LastEditors: Leo
 -->
 <template>
@@ -87,8 +87,8 @@ export default {
   props: {
     codeTemplateList: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -103,10 +103,10 @@ export default {
         ID: undefined,
         templateVersion: undefined,
         templateDesc: undefined,
-        addTime: undefined
+        addTime: undefined,
       },
       // 搜索项校验规则
-      rules: {}
+      rules: {},
     };
   },
   created() {},
@@ -118,7 +118,7 @@ export default {
 
     codeTemplateChange(templateId) {
       const chooseTemplate = this.codeTemplateList.find(
-        item => item.templateId === templateId
+        (item) => item.templateId === templateId
       );
       this.form.ID = templateId;
       this.form.templateVersion = chooseTemplate.userVersion;
@@ -133,24 +133,28 @@ export default {
     },
     // 保存
     onSubmit() {
-      this.$refs.ruleForm.validate(valid => {
+      this.$refs.ruleForm.validate((valid) => {
         if (valid) {
           const data = {
             appid: this.form.appid,
-            templateId: this.form.templateId
+            templateId: this.form.templateId,
           };
           this.$refs.loading.openLoading("操作进行中，请稍后。。");
-          commitCode(data).then(res => {
-            this.$refs.loading.closeLoading();
-            const result = res.data;
-            if (result.code === 0) {
-              this.$message.success(result.desc);
-              this.handleCancel();
-              this.$emit("searchTableData");
-            } else {
-              this.$message.error(result.desc);
-            }
-          });
+          commitCode(data)
+            .then((res) => {
+              this.$refs.loading.closeLoading();
+              const result = res.data;
+              if (result.code === 0) {
+                this.$message.success(result.desc);
+                this.handleCancel();
+                this.$emit("searchTableData");
+              } else {
+                this.$message.error(result.desc);
+              }
+            })
+            .catch(() => {
+              this.$refs.loading.closeLoading();
+            });
         } else {
           return false;
         }
@@ -159,7 +163,7 @@ export default {
     handleCancel() {
       this.$refs.ruleForm.resetFields();
       this.visible = false;
-    }
-  }
+    },
+  },
 };
 </script>

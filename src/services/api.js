@@ -6,7 +6,7 @@
 //     : API_PROXY_PREFIX;
 const BASE_URL = process.env.VUE_APP_API_BASE_URL;
 const BBS_BASE_URL = process.env.VUE_APP_API_BBS_BASE_URL;
-const SAAS_BASE_URL = process.env.VUE_APP_API_SAAS_BASE_URL;
+// const SAAS_BASE_URL = process.env.VUE_APP_API_SAAS_BASE_URL;
 module.exports = {
   // login
   LOGIN: `${BASE_URL}/wxapplet-admin/api/user/login/goAccount`,
@@ -18,7 +18,7 @@ module.exports = {
   FOEGETPASSWORD: `${BBS_BASE_URL}/login/forgetPassword/validMobile`, // 找回密码验证手机验证码
   FOEGETPASSWORDCODE: `${BBS_BASE_URL}/login/forgetPassword`, // 忘记密码获取手机验证码
   RESETPASSWORD: `${BBS_BASE_URL}/login/forgetPassword/modPassword`, // 重置修改密码
-  USERAUDITPASSWORD: `${SAAS_BASE_URL}/home/modPwd`, // 用户修改密码
+  USERAUDITPASSWORD: `${BASE_URL}/wxapplet-admin/api/home/modPwd`, // 用户修改密码
 
   /* 版本控制 */
 
@@ -50,5 +50,5 @@ module.exports = {
   /* 代码模板列表 */
 
   CODETABLEDATA: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeTemplate/query`, // table查询
-  CODESYNCTEMPLATE: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeTemplate/syncTemplateList` // 同步代码模板列表
+  CODESYNCTEMPLATE: `${BASE_URL}/wxapplet-admin/api/miniProgram/codeTemplate/syncTemplateList`, // 同步代码模板列表
 };

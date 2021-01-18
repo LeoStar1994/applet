@@ -9,7 +9,7 @@
           </a-breadcrumb-item>
         </a-breadcrumb>
       </div>
-      <div class="detail">
+      <!-- <div class="detail">
         <div class="main">
           <div class="row">
             <h1 v-if="showPageTitle && title"
@@ -34,7 +34,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

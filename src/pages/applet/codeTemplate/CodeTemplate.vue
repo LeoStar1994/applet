@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 代码模板列表.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-13 10:19:24
+ * @LastEditTime: 2021-01-18 13:37:22
  * @LastEditors: Leo
 -->
 <template>
@@ -84,6 +84,7 @@ export default {
           const result = res.data;
           if (result.code === 0) {
             this.$message.success(result.desc);
+            this.searchTableData();
           } else {
             this.$message.error(result.desc);
           }

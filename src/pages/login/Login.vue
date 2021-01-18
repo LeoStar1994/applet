@@ -2,7 +2,7 @@
  * @Description: login登录页面.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-12 10:45:21
+ * @LastEditTime: 2021-01-18 11:33:14
  * @LastEditors: Leo
 -->
 
@@ -28,7 +28,6 @@
         <a-tab-pane tab="账户密码登录"
                     key="commonLogin">
           <a-alert type="error"
-                   :closable="true"
                    v-show="error"
                    :message="error"
                    showIcon
@@ -87,7 +86,6 @@
         <a-tab-pane tab="手机号登录"
                     key="phoneLogin">
           <a-alert type="error"
-                   :closable="true"
                    v-show="errorByPhone"
                    :message="errorByPhone"
                    showIcon
@@ -170,7 +168,7 @@ import {
   SMSCode,
   loginByPhone,
   getRoutesConfig,
-  getHomeInitData
+  getHomeInitData,
 } from "@/services/user";
 import { setAuthorization } from "@/utils/request";
 import { loadRoutes } from "@/utils/routerUtil";
@@ -184,35 +182,35 @@ const userInfo = {
     CN: "前端工程师 | 蚂蚁金服-计算服务事业群-VUE平台",
     HK: "前端工程師 | 螞蟻金服-計算服務事業群-VUE平台",
     US:
-      "Front-end engineer | Ant Financial - Computing services business group - VUE platform"
-  }
+      "Front-end engineer | Ant Financial - Computing services business group - VUE platform",
+  },
 };
 const timeList = [
   {
     CN: "早上好",
     HK: "早晨啊",
-    US: "Good morning"
+    US: "Good morning",
   },
   {
     CN: "上午好",
     HK: "上午好",
-    US: "Good morning"
+    US: "Good morning",
   },
   {
     CN: "中午好",
     HK: "中午好",
-    US: "Good afternoon"
+    US: "Good afternoon",
   },
   {
     CN: "下午好",
     HK: "下午好",
-    US: "Good afternoon"
+    US: "Good afternoon",
   },
   {
     CN: "晚上好",
     HK: "晚上好",
-    US: "Good evening"
-  }
+    US: "Good evening",
+  },
 ];
 
 export default {
@@ -231,7 +229,7 @@ export default {
       countDownSceonds: 60,
       timer: null,
       verifyCodeImgUrl: null,
-      verifyCodeToken: null
+      verifyCodeToken: null,
     };
   },
   created() {
@@ -299,7 +297,7 @@ export default {
 
     // 获取图形验证码
     fetchVerifyCode() {
-      verifyCode().then(res => {
+      verifyCode().then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.verifyCodeImgUrl = result.data.vpngBase64;
@@ -322,13 +320,13 @@ export default {
     // 账户密码点击登录
     onSubmit(e) {
       e.preventDefault();
-      this.form.validateFields(err => {
+      this.form.validateFields((err) => {
         if (!err) {
           this.logging = true;
           const allValues = this.form.getFieldsValue();
           const data = {
             ...allValues,
-            verifyCodeToken: this.verifyCodeToken
+            verifyCodeToken: this.verifyCodeToken,
           };
           login(data)
             .then(this.afterLogin)
@@ -346,7 +344,7 @@ export default {
         ...res.data,
         expireAt: new Date(new Date(new Date().getTime() + 30 * 60 * 1000)),
         user: { ...userInfo },
-        message: this.timeFix().CN + "，欢迎回来"
+        message: this.timeFix().CN + "，欢迎回来",
       };
       if (loginRes.code == 0) {
         // const { user, permissions, roles } = loginRes.data;
@@ -356,9 +354,9 @@ export default {
         // 设置token认证信息
         setAuthorization({
           token: loginRes.data,
-          expireAt: new Date(loginRes.expireAt)
+          expireAt: new Date(loginRes.expireAt),
         });
-        getHomeInitData().then(res => {
+        getHomeInitData().then((res) => {
           const result = res.data;
           if (result.code === 0) {
             loginRes.user.name = result.data.account;
@@ -367,8 +365,10 @@ export default {
           }
         });
         // 获取路由配置
-        getRoutesConfig().then(result => {
-          const routesConfig = result.data.data.menuTree;
+        getRoutesConfig().then((result) => {
+          const routesConfig = result.data.data.menuTree
+            ? result.data.data.menuTree
+            : [];
           // loginRes.user.name = result.data.data.account;
           this.setUser(loginRes.user); // 设置user信息
           loadRoutes(routesConfig);
@@ -387,7 +387,7 @@ export default {
     // 手机号登录
     onSubmitByPhone(e) {
       e.preventDefault();
-      this.form1.validateFields(err => {
+      this.form1.validateFields((err) => {
         if (!err) {
           this.logging = true;
           const allValues = this.form1.getFieldsValue();
@@ -410,7 +410,7 @@ export default {
       }, 1000);
       const mobile = this.form1.getFieldValue("mobile");
       // ajax
-      SMSCode({ mobile }).then(res => {
+      SMSCode({ mobile }).then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.$message.success("短信验证码已发送，请注意查收");
@@ -423,8 +423,8 @@ export default {
     // 忘记密码
     forgetPassword() {
       this.$refs.forgetPassword.visible = true;
-    }
-  }
+    },
+  },
 };
 </script>
 

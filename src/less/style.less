@@ -20,6 +20,39 @@
   *zoom: 1;
 }
 
+.orangeButton {
+  border-color: orange !important;
+  background-color: orange !important;
+  color: #fff !important;
+  border-radius: 4px;
+
+  &:hover {
+    border-color: orange !important;
+    color: #fff !important;
+  }
+}
+
+.greenButton {
+  border-color: #52C41A !important;
+  background-color: #52C41A !important;
+  color: #fff !important;
+  border-radius: 4px;
+
+
+  &:hover {
+    border-color: #52C41A !important;
+    color: #fff !important;
+  }
+}
+
+.ant-table-tbody {
+  tr {
+    &:nth-child(2n) {
+      background-color: #fafafa !important;
+    }
+  }
+}
+
 //float
 .fl {
   float: left;
@@ -140,13 +173,14 @@ each(@text-directions, {
 );
 
 // opacity
-each(@percents, {
-    .opacity-@{key} {
-      opacity: @value
-    }
-  }
+// each(@percents, {
+//     .opacity@{key} {
+//       opacity: @value
+//     }
+//   }
 
-);
+// );
+
 
 // display
 each(@dispalys, {

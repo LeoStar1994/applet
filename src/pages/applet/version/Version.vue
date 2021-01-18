@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 版本控制.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-13 17:03:47
+ * @LastEditTime: 2021-01-18 17:44:39
  * @LastEditors: Leo
 -->
 <template>
@@ -25,7 +25,9 @@
              slot-scope="{text, record}">
           <span v-if="text === 1"
                 class="text-red">
-            审核失败<a href="#"
+            审核失败
+            <a href="#"
+               class="d-block"
                @click="viewFileReason(record.appid)">【查看失败原因】</a>
           </span>
           <span v-else
@@ -36,69 +38,84 @@
         <!-- 操作 -->
         <div slot="action"
              slot-scope="{record}">
-          <a style="margin-right:12px;"
-             @click="openCodeUpload(record.appid)">上传代码
-          </a>
+          <a-button class="mr-12"
+                    type="primary"
+                    size="small"
+                    @click="openCodeUpload(record.appid)">上传代码
+          </a-button>
           <!-- 提交审核 -->
           <a-popconfirm :title="`当前上传版本号：${record.testerUserVersion}，是否提交审核?`"
                         ok-text="确定"
                         cancel-text="取消"
-                        v-if="record.isShowButtonSubmitAudit"
-                        style="margin-right:12px;"
+                        class="mr-12"
+                        :disabled="!record.isShowButtonSubmitAudit"
                         @confirm="submitAudit(record.appid)"
                         @cancel="cancel">
-            <a href="#">提交审核</a>
+            <a-button type="primary"
+                      :disabled="!record.isShowButtonSubmitAudit"
+                      size="small">提交审核</a-button>
           </a-popconfirm>
           <!-- 审核撤回 -->
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        v-if="record.isShowButtonUndocodeAudit"
-                        style="margin-right:12px;"
+                        class="mr-12"
+                        :disabled="!record.isShowButtonUndocodeAudit"
                         @confirm="undocodeAudit(record.appid)"
                         @cancel="cancel">
             <template slot="title">
               <p>是否撤回当前正在审核中的代码？</p>
               <p>注：单个帐号每天审核撤回次数最多不超过5次（每天的额度从0点开始生效），一个月不超过10次</p>
             </template>
-            <a href="#">审核撤回</a>
+            <a-button :class="[record.isShowButtonUndocodeAudit ? 'orangeButton' : '']"
+                      :disabled="!record.isShowButtonUndocodeAudit"
+                      size="small">审核撤回</a-button>
           </a-popconfirm>
           <!-- 通知发布 -->
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        v-if="record.isShowButtonMsgUpdate"
-                        style="margin-right:12px;"
+                        class="mr-12"
+                        :disabled="!record.isShowButtonMsgUpdate"
                         @confirm="noticeIssue(record.appid)"
                         @cancel="cancel">
             <template slot="title">
               <p>通知业务系统更新小程序，</p>
               <p>业务系统同意后将发布已通过审核的小程序</p>
             </template>
-            <a href="#">通知发布</a>
+            <a-button type="primary"
+                      :disabled="!record.isShowButtonMsgUpdate"
+                      size="small">通知发布</a-button>
           </a-popconfirm>
           <a-popconfirm ok-text="确定"
                         cancel-text="取消"
-                        v-if="record.isShowButtonVersionRollback"
-                        style="margin-right:12px;"
+                        class="mr-12"
+                        :disabled="!record.isShowButtonVersionRollback"
                         @confirm="backLastVersion(record.appid)"
                         @cancel="cancel">
             <template slot="title">
               <p>如果没有上一个线上版本，将无法回退。</p>
               <p>只能向上回退一个版本，即当前版本回退后，不能再调用版本回退接口</p>
             </template>
-            <a href="#"
-               class="text-orange">版本回退</a>
+            <a-button size="small"
+                      :disabled="!record.isShowButtonVersionRollback"
+                      type="danger">版本回退</a-button>
           </a-popconfirm>
         </div>
         <!-- 体验者操作 -->
         <div slot="experienceAction"
              slot-scope="{record}">
-          <a style="margin-right:12px;"
-             @click="fetchExperienceQRCode(record.appid)">获取体验版二维码
-          </a>
-          <a style="margin-right: 12px"
-             @click="bindingExperiencer(record.appid)">绑定体验者</a>
-          <a style="margin-right: 12px"
-             @click="relieveExperiencer(record.appid)">解除体验者</a>
+          <a-button class="mr-12"
+                    size="small"
+                    type="primary"
+                    @click="fetchExperienceQRCode(record.appid)">获取体验版二维码
+          </a-button>
+          <a-button class="mr-12"
+                    size="small"
+                    type="primary"
+                    @click="testerOperate(record.appid, 0)">绑定体验者</a-button>
+          <a-button class="mr-12"
+                    size="small"
+                    type="primary"
+                    @click="testerOperate(record.appid, 1)">解除体验者</a-button>
         </div>
       </standard-table>
     </a-card>
@@ -119,6 +136,10 @@
                     :failReasonImgList="failReasonImgList"
                     :failReason="failReason"></ViewFailReason>
 
+    <!-- 绑定、解绑体验者modal -->
+    <AuditWechat ref="auditWechat"
+                 :title="testerTitle"></AuditWechat>
+
     <!-- loading -->
     <transition name="el-fade-in">
       <loading ref="loading"></loading>
@@ -132,6 +153,7 @@ import StandardTable from "@/components/table/StandardTable";
 import QRCode from "@/components/qrcode/QRCode";
 import CodeUploadModal from "./CodeUploadModal";
 import ViewFailReason from "./ViewFailReason";
+import AuditWechat from "./AuditWechat";
 import {
   getTableData,
   getCodeTemplateList,
@@ -140,9 +162,7 @@ import {
   noticeIssueInfo,
   backAudit,
   getQrcode,
-  bindTester,
-  unbindTester,
-  failReason
+  failReason,
 } from "@/services/version";
 // table columns data
 const columns = [
@@ -150,64 +170,71 @@ const columns = [
     title: "图标",
     dataIndex: "headImg",
     scopedSlots: { customRender: "appletIcon" },
-    width: "100px"
+    width: "100px",
   },
   {
     title: "小程序名称",
     dataIndex: "nickName",
-    width: "160px"
+    width: "160px",
   },
   {
-    title: "上一个线上版本",
+    title: "上一个版本",
     dataIndex: "lastUserVersion",
-    width: "160px"
+    width: "160px",
   },
   {
     title: "当前版本号",
     dataIndex: "nowUserVersion",
-    width: "160px"
+    width: "160px",
   },
   {
     title: "当前体验版",
     dataIndex: "testerUserVersion",
-    width: "160px"
+    width: "160px",
   },
   {
     title: "提交审核版本号",
     dataIndex: "submitAuditUserVersion",
-    width: "160px"
+    width: "160px",
   },
   {
     title: "审核结果",
     dataIndex: "auditState",
     scopedSlots: { customRender: "auditResult" },
-    width: "160px"
+    width: "160px",
   },
   {
     title: "通知更新状态",
     dataIndex: "msgUpdateState",
-    width: "160px"
+    width: "160px",
   },
   {
     title: "操作",
     scopedSlots: { customRender: "action" },
-    width: "400px"
+    width: "460px",
   },
   {
     title: "体验者操作",
     scopedSlots: { customRender: "experienceAction" },
-    width: "360px"
-  }
+    width: "400px",
+  },
 ];
 
 export default {
   name: "Version",
-  components: { StandardTable, CodeUploadModal, QRCode, ViewFailReason },
+  components: {
+    StandardTable,
+    CodeUploadModal,
+    QRCode,
+    ViewFailReason,
+    AuditWechat,
+  },
   i18n: require("./i18n"),
   data() {
     return {
       QRTitle: "体验二维码",
       failReasonTitle: "查看失败原因",
+      testerTitle: "绑定体验者",
       failReason: "",
       failReasonImgList: [],
       tableLoading: false,
@@ -221,10 +248,10 @@ export default {
         1: "审核被拒绝",
         2: "审核中",
         3: "已撤回",
-        4: "审核延后"
+        4: "审核延后",
       },
       codeTemplateList: [], // 代码模板list
-      QRCodeUrl: ""
+      QRCodeUrl: "",
     };
   },
   computed: {
@@ -232,7 +259,7 @@ export default {
     // page header desc
     desc() {
       return this.$t("description");
-    }
+    },
   },
   created() {
     this.getTemplateList();
@@ -241,7 +268,7 @@ export default {
   methods: {
     // 获取代码模板list
     getTemplateList() {
-      getCodeTemplateList().then(res => {
+      getCodeTemplateList().then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.codeTemplateList = result.data;
@@ -255,7 +282,7 @@ export default {
     viewFileReason(appid) {
       this.$refs.loading.openLoading("正在查询，请稍后。。");
       failReason({ appid })
-        .then(res => {
+        .then((res) => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -280,7 +307,7 @@ export default {
     submitAudit(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       submitAudit({ appid })
-        .then(res => {
+        .then((res) => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -299,7 +326,7 @@ export default {
     undocodeAudit(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       backAudit({ appid })
-        .then(res => {
+        .then((res) => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -318,7 +345,7 @@ export default {
     noticeIssue(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       noticeIssueInfo({ appid })
-        .then(res => {
+        .then((res) => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -337,7 +364,7 @@ export default {
     backLastVersion(appid) {
       this.$refs.loading.openLoading("操作进行中，请稍后。。");
       backVersion({ appid })
-        .then(res => {
+        .then((res) => {
           this.$refs.loading.closeLoading();
           const result = res.data;
           if (result.code === 0) {
@@ -358,7 +385,7 @@ export default {
 
     // 获取体验版二维码
     fetchExperienceQRCode(appid) {
-      getQrcode({ appid }).then(res => {
+      getQrcode({ appid }).then((res) => {
         const result = res.data;
         if (result.code === 0) {
           this.QRCodeUrl = result.data;
@@ -369,48 +396,20 @@ export default {
       });
     },
 
-    // 绑定体验者
-    bindingExperiencer(appid) {
-      this.$refs.loading.openLoading("操作进行中，请稍后。。");
-      bindTester({ appid })
-        .then(res => {
-          this.$refs.loading.closeLoading();
-          const result = res.data;
-          if (result.code === 0) {
-            this.$message.success(result.desc);
-            // this.searchTableData();
-          } else {
-            this.$message.error(result.desc);
-          }
-        })
-        .catch(() => {
-          this.$refs.loading.closeLoading();
-        });
-    },
-
-    // 解除体验者
-    relieveExperiencer(appid) {
-      this.$refs.loading.openLoading("操作进行中，请稍后。。");
-      unbindTester({ appid })
-        .then(res => {
-          this.$refs.loading.closeLoading();
-          const result = res.data;
-          if (result.code === 0) {
-            this.$message.success(result.desc);
-            // this.searchTableData();
-          } else {
-            this.$message.error(result.desc);
-          }
-        })
-        .catch(() => {
-          this.$refs.loading.closeLoading();
-        });
+    // 绑定 | 解绑体验者
+    testerOperate(appid, type) {
+      if (type === 0) {
+        this.testerTitle = "绑定体验者";
+      } else {
+        this.testerTitle = "解绑体验者";
+      }
+      this.$refs.auditWechat.setOpenType(appid, type);
     },
 
     // 列表查询
     searchTableData() {
       this.tableLoading = true;
-      getTableData().then(res => {
+      getTableData().then((res) => {
         const result = res.data;
         if (result.code === 0) {
           const { records } = result.data;
@@ -420,14 +419,14 @@ export default {
         }
         this.tableLoading = false;
       });
-    }
+    },
   },
 
   beforeRouteEnter(to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.searchTableData();
     });
-  }
+  },
 };
 </script>
 

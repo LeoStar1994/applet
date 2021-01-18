@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 小程序列表.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-13 17:00:57
+ * @LastEditTime: 2021-01-18 16:36:01
  * @LastEditors: Leo
 -->
 <template>
@@ -37,10 +37,14 @@
         </div>
         <div slot="action"
              slot-scope="{record}">
-          <a class="mr-12"
-             @click="openAuthorList(record.appid)">权限集列表</a>
-          <a class="text-red mr-12"
-             @click="unbind(record.appid)">解绑</a>
+          <a-button class="mr-12"
+                    type="primary"
+                    size="small"
+                    @click="openAuthorList(record.appid)">权限集列表</a-button>
+          <a-button class="mr-12"
+                    type="danger"
+                    size="small"
+                    @click="unbind(record.appid)">解绑</a-button>
         </div>
       </standard-table>
     </a-card>
@@ -105,6 +109,7 @@ const columns = [
   },
   {
     title: "操作",
+    width: "200px",
     scopedSlots: { customRender: "action" },
   },
 ];
