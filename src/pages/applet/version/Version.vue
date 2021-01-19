@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 版本控制.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-18 23:11:35
+ * @LastEditTime: 2021-01-18 23:46:47
  * @LastEditors: Leo
 -->
 <template>
@@ -123,6 +123,7 @@
     <!-- 上传代码modal -->
     <CodeUploadModal ref="codeUploadModal"
                      :codeTemplateList="codeTemplateList"
+                     @refreshTemplate="getTemplateList"
                      @searchTableData="searchTableData"></CodeUploadModal>
 
     <!-- 体验二维码modal -->
@@ -261,21 +262,27 @@ export default {
       return this.$t("description");
     },
   },
-  created() {
+  mounted() {
     this.getTemplateList();
     this.searchTableData();
   },
   methods: {
     // 获取代码模板list
     getTemplateList() {
-      getCodeTemplateList().then((res) => {
-        const result = res.data;
-        if (result.code === 0) {
-          this.codeTemplateList = result.data;
-        } else {
-          this.$message.error(result.desc);
-        }
-      });
+      this.$refs.loading.openLoading("正在获取数据，请稍后。。");
+      getCodeTemplateList()
+        .then((res) => {
+          this.$refs.loading.closeLoading();
+          const result = res.data;
+          if (result.code === 0) {
+            this.codeTemplateList = result.data;
+          } else {
+            this.$message.error(result.desc);
+          }
+        })
+        .catch(() => {
+          this.$refs.loading.closeLoading();
+        });
     },
 
     // 查看失败原因

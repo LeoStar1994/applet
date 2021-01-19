@@ -2,7 +2,7 @@
  * @Description: 上传代码弹框
  * @Author: Leo
  * @Date: 2020-12-29 17:00:45
- * @LastEditTime: 2021-01-18 13:38:33
+ * @LastEditTime: 2021-01-18 23:42:01
  * @LastEditors: Leo
 -->
 <template>
@@ -22,6 +22,7 @@
                     :wrapper-col="wrapperCol">
         <!-- 代码模板 -->
         <a-form-model-item label="代码模板"
+                           class="pos-relative"
                            prop="templateId">
           <a-select style="width: 100%"
                     v-model="form.templateId"
@@ -34,6 +35,10 @@
               {{item.userVersion}}
             </a-select-option>
           </a-select>
+          <a-icon type="sync"
+                  title="刷新代码模板"
+                  class="syncRoles"
+                  @click="syncRoles" />
         </a-form-model-item>
         <!-- 模板ID -->
         <a-form-model-item label="模板ID"
@@ -116,6 +121,11 @@ export default {
       this.visible = true;
     },
 
+    // 刷新代码模板
+    syncRoles() {
+      this.$emit("refreshTemplate");
+    },
+
     codeTemplateChange(templateId) {
       const chooseTemplate = this.codeTemplateList.find(
         (item) => item.templateId === templateId
@@ -167,3 +177,11 @@ export default {
   },
 };
 </script>
+
+<style lang="less">
+.syncRoles {
+  position: absolute;
+  right: -28px;
+  top: 0;
+}
+</style>
