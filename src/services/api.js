@@ -46,6 +46,7 @@ module.exports = {
   APPLETROLES: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/getRoles`, // 权限集列表
   APPLETADDAUTH: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/getAuthPageUrl`, // 获取新增小程序授权页面
   APPLETUNBIND: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/unbind`, // 解绑
+  APPLETUPDATEINFO: `${BASE_URL}/wxapplet-admin/api/miniProgram/management/upgrade`, // 更新基本信息
 
   /* 代码模板列表 */
 

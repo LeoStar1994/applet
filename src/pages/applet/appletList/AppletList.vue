@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 小程序列表.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-18 16:36:01
+ * @LastEditTime: 2021-01-20 17:48:24
  * @LastEditors: Leo
 -->
 <template>
@@ -37,11 +37,15 @@
         </div>
         <div slot="action"
              slot-scope="{record}">
-          <a-button class="mr-12"
+          <a-button class="mr-12 mb-6"
+                    type="primary"
+                    size="small"
+                    @click="updateAppletInfo(record.appid)">更新基本信息</a-button>
+          <a-button class="mr-12 mb-6"
                     type="primary"
                     size="small"
                     @click="openAuthorList(record.appid)">权限集列表</a-button>
-          <a-button class="mr-12"
+          <a-button class="mr-12 mb-6"
                     type="danger"
                     size="small"
                     @click="unbind(record.appid)">解绑</a-button>
@@ -169,6 +173,25 @@ export default {
       this.$refs.QRCodeModal.openQRCode();
     },
 
+    // 更新基本信息
+    updateAppletInfo(appid) {
+      this.$refs.loading.openLoading("数据更新中，请稍后。。");
+      appletRoles({ appid })
+        .then((res) => {
+          this.$refs.loading.closeLoading();
+          const result = res.data;
+          if (result.code === 0) {
+            this.$message.success(result.desc);
+            this.searchTableData();
+          } else {
+            this.$message.error(result.desc);
+          }
+        })
+        .catch(() => {
+          this.$refs.loading.closeLoading();
+        });
+    },
+
     // 权限集列表
     openAuthorList(appid) {
       this.$refs.loading.openLoading("数据查询中，请稍后。。");
@@ -182,7 +205,6 @@ export default {
           } else {
             this.$message.error(result.desc);
           }
-          this.tableLoading = false;
         })
         .catch(() => {
           this.$refs.loading.closeLoading();
@@ -203,7 +225,6 @@ export default {
           } else {
             this.$message.error(result.desc);
           }
-          this.tableLoading = false;
         })
         .catch(() => {
           this.$refs.loading.closeLoading();

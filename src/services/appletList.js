@@ -4,6 +4,7 @@ import {
   APPLETROLES,
   APPLETADDAUTH,
   APPLETUNBIND,
+  APPLETUPDATEINFO,
 } from "@/services/api";
 import { request, METHOD } from "@/utils/request";
 
@@ -28,4 +29,9 @@ export async function appletAuthPage(data) {
 // 解绑
 export async function appletUnbind(data) {
   return request(APPLETUNBIND, METHOD.PATCH, data);
+}
+
+// 更新基本信息
+export async function updateBaseInfo(data) {
+  return request(APPLETUPDATEINFO, METHOD.PATCH, data);
 }
