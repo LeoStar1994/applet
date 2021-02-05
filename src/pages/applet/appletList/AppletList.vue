@@ -2,7 +2,7 @@
  * @Description: 小程序管理 / 小程序列表.
  * @Author: Leo
  * @Date: 2020-12-17 17:39:10
- * @LastEditTime: 2021-01-20 17:48:24
+ * @LastEditTime: 2021-02-05 14:42:23
  * @LastEditors: Leo
 -->
 <template>
@@ -78,29 +78,35 @@ import {
   appletRoles,
   appletAuthPage,
   appletUnbind,
+  updateBaseInfo,
 } from "@/services/appletList";
 // table columns data
 const columns = [
   {
     title: "图标",
     dataIndex: "headImg",
+    width: "60px",
     scopedSlots: { customRender: "appletIcon" },
   },
   {
     title: "小程序名称",
+    width: "120px",
     dataIndex: "nickName",
   },
   {
     title: "功能介绍",
+    width: "100px",
     dataIndex: "signature",
   },
   {
     title: "小程序二维码",
+    width: "120px",
     dataIndex: "qrcodeUrl",
     scopedSlots: { customRender: "qrcode" },
   },
   {
     title: "主体名称",
+    width: "100px",
     dataIndex: "principalName",
   },
   {
@@ -109,6 +115,7 @@ const columns = [
   },
   {
     title: "授权时间",
+    width: "150px",
     dataIndex: "authorizerTime",
   },
   {
@@ -176,7 +183,7 @@ export default {
     // 更新基本信息
     updateAppletInfo(appid) {
       this.$refs.loading.openLoading("数据更新中，请稍后。。");
-      appletRoles({ appid })
+      updateBaseInfo({ appid })
         .then((res) => {
           this.$refs.loading.closeLoading();
           const result = res.data;

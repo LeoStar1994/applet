@@ -33,5 +33,5 @@ export async function appletUnbind(data) {
 
 // 更新基本信息
 export async function updateBaseInfo(data) {
-  return request(APPLETUPDATEINFO, METHOD.PATCH, data);
+  return request(APPLETUPDATEINFO, METHOD.GET, data);
 }
